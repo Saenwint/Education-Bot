@@ -8,19 +8,64 @@ from aiogram.types import Message
 from aiogram.filters import Command, CommandStart, CommandObject
 from aiogram import Dispatcher, types
 
+import menu.keyboards as kb
+
 dp = Dispatcher()
+
+# -----------Меню-----------
 
 @dp.message(CommandStart())
 async def start_cmd(message: types.Message):
-    await message.answer("This command was start")
+    await message.answer("Выберите команду: ", reply_markup=kb.start_menu)
 
 
+@dp.message(F.text == "Назад")
+async def go_back(message: Message):
+    await message.answer(f"Выберите команду: ", reply_markup=kb.start_menu)
+
+
+@dp.message(F.text == "Расписание")
+async def show_timesheet(message: Message):
+    await message.answer(f"Выбирите группу: ", reply_markup=kb.sub_menu)
+
+
+@dp.message(F.text == "1375")
+async def show_timesheet(message: Message):
+    await message.answer(f"Расписание для группы 1375: ")
+
+
+@dp.message(F.text == "1376")
+async def show_timesheet(message: Message):
+    await message.answer(f"Расписание для группы 1376: ")
+
+
+@dp.message(F.text == "Заметки")
+async def show_notes(message: Message):
+    await message.answer(f"Ваши заметки: ")
+
+
+@dp.message(F.text == "Python")
+async def show_timesheet(message: Message):
+    await message.answer(f"Выбирите действие: ", reply_markup=kb.py_menu)
+
+
+@dp.message(F.text == "Курсы")
+async def show_timesheet(message: Message):
+    await message.answer(f"Все добавленные курсы по Python: ")
+
+
+@dp.message(F.text == "Материалы")
+async def show_timesheet(message: Message):
+    await message.answer(f"Все добавленные материалы по Python: ")
+
+
+# ------------------------
 # Если не указать фильтр F.text, 
 # то хэндлер сработает даже на картинку с подписью /test
 @dp.message(F.text, Command("test"))
 async def any_message(message: Message):
     await message.answer(
-        "Hello, *world*\!", 
+        "Hello, *world*!", 
     )
 
 @dp.message(Command("hello"))
@@ -30,40 +75,3 @@ async def cmd_hello(message: Message):
     )
 
 
-
-@dp.message(Command("advanced_example"))
-async def cmd_advanced_example(message: Message):
-    content = as_list(
-        as_marked_section(
-            Bold("Success:"),
-            "Test 1",
-            "Test 3",
-            "Test 4",
-            marker="✅ ",
-        ),
-        as_marked_section(
-            Bold("Failed:"),
-            "Test 2",
-            marker="❌ ",
-        ),
-        as_marked_section(
-            Bold("Summary:"),
-            as_key_value("Total", 4),
-            as_key_value("Success", 3),
-            as_key_value("Failed", 1),
-            marker="  ",
-        ),
-        HashTag("#test"),
-        sep="\n\n",
-    )
-    await message.answer(**content.as_kwargs())
-
-
-# @dp.message(F.text)
-# async def echo_with_time(message: Message):
-#     # Получаем текущее время в часовом поясе ПК
-#     time_now = datetime.now().strftime('%H:%M')
-#     # Создаём подчёркнутый текст
-#     added_text = md.underline(f"Создано в {time_now}")
-#     # Отправляем новое сообщение с добавленным текстом
-#     await message.answer(f"{message.md_text}\n\n{added_text}")
