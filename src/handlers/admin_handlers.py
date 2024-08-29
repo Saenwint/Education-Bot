@@ -22,12 +22,12 @@ async def start_admin_cmd(message: types.Message):
     await message.answer("Вы вошли в админ панель", reply_markup=kb.admin_panel_menu)
 
 
-@admin_router.message(F.text == "Назад")
+@admin_router.message(F.text == "⬅️ Go back")
 async def go_back(message: types.Message):
     await message.answer(f"Выберите команду", reply_markup=kb.admin_menu_main)
 
 
-@admin_router.message(F.text == "Расписание")
+@admin_router.message(F.text == "📋 Изменить расписание")
 async def show_timesheet(message: types.Message):
     await message.answer(f"Выбирите группу", reply_markup=kb.admin_menu_timesheet)
 
@@ -42,7 +42,7 @@ async def show_timesheet(message: types.Message):
     await message.answer(f"Внесите изменения для группы 1376: ")
 
 
-@admin_router.message(F.text == "Python")
+@admin_router.message(F.text == "🐍 Поправить python")
 async def show_timesheet(message: types.Message):
     await message.answer(f"Выбирите команду", reply_markup=kb.admin_menu_py)
 

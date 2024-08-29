@@ -5,9 +5,9 @@ from aiogram import F, md, Router
 from aiogram.types import Message
 from aiogram.filters import Command, CommandStart, CommandObject
 from aiogram import types
-
 from datetime import datetime
 
+from config import config
 import menu.keyboards as kb
 
 user_router = Router()
@@ -21,7 +21,10 @@ async def start_cmd(message: types.Message):
 
 @user_router.message(F.text == "⬅️ Назад")
 async def go_back(message: Message):
-    await message.answer(f"Выберите команду", reply_markup=kb.start_menu)
+    if message.from_user.id == config.ADMIN:
+        await message.answer("Выберите команду", reply_markup=kb.admin_menu_main)
+    else:
+        await message.answer("Выберите команду", reply_markup=kb.start_menu)
 
 
 @user_router.message(F.text == "📋 Расписание")
@@ -41,7 +44,7 @@ async def show_timesheet(message: Message):
 
 @user_router.message(F.text.in_({'🗂 Заметки', 'заметки', 'Заметки', 'notes'}) )
 async def show_notes(message: Message):
-    await message.answer(f"Ваши заметки: ")
+    await message.answer(f"В разработке")
 
 
 @user_router.message(F.text == "🐍 Python")

@@ -68,7 +68,7 @@ admin_panel_menu = ReplyKeyboardMarkup(
             KeyboardButton(text="🐍 Поправить python")
         ],
         [
-            KeyboardButton(text="Назад")
+            KeyboardButton(text="⬅️ Go back")
         ]
     ],
     resize_keyboard=True,
@@ -82,7 +82,7 @@ admin_menu_timesheet = ReplyKeyboardMarkup(
             KeyboardButton(text="Изменить для 1376")
         ],
         [
-            KeyboardButton(text="⬅️ Назад")
+            KeyboardButton(text="⬅️ Go back")
         ]
     ],
     resize_keyboard=True,
@@ -97,7 +97,7 @@ admin_menu_py = ReplyKeyboardMarkup(
             KeyboardButton(text="Изменить материалы")
         ],
         [
-            KeyboardButton(text="⬅️ Назад")
+            KeyboardButton(text="⬅️ Go back")
         ]
     ],
     resize_keyboard=True,
