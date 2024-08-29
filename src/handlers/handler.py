@@ -68,6 +68,7 @@ async def any_message(message: Message):
         "Hello, *world*!", 
     )
 
+
 @dp.message(Command("hello"))
 async def cmd_hello(message: Message):
     await message.answer(
