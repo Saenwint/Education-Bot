@@ -19,19 +19,20 @@ bot = Bot(
 
 
 async def on_startup(bot):
-    run_param = False
-    if run_param:
-        await drop_db()
+    print('bot start')
     await create_db()
 
 
 async def on_shutdown(bot):
-    print('shotdown bot')
+    print('shutdown bot')
+    await drop_db()
 
 
 async def main():
     dp.startup.register(on_startup)
     dp.shutdown.register(on_shutdown)
+    
+    await bot.delete_webhook(drop_pending_updates=True)
     
     await dp.start_polling(bot)
     

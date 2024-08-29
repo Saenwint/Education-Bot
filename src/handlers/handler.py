@@ -3,7 +3,7 @@ from aiogram.utils.formatting import (
 )
 from datetime import datetime
 
-from aiogram import F, html, md
+from aiogram import F, md
 from aiogram.types import Message
 from aiogram.filters import Command, CommandStart, CommandObject
 from aiogram import Dispatcher, types
@@ -16,17 +16,17 @@ dp = Dispatcher()
 
 @dp.message(CommandStart())
 async def start_cmd(message: types.Message):
-    await message.answer("Выберите команду: ", reply_markup=kb.start_menu)
+    await message.answer("Выберите команду", reply_markup=kb.start_menu)
 
 
 @dp.message(F.text == "Назад")
 async def go_back(message: Message):
-    await message.answer(f"Выберите команду: ", reply_markup=kb.start_menu)
+    await message.answer(f"Выберите команду", reply_markup=kb.start_menu)
 
 
 @dp.message(F.text == "Расписание")
 async def show_timesheet(message: Message):
-    await message.answer(f"Выбирите группу: ", reply_markup=kb.sub_menu)
+    await message.answer(f"Выбирите группу", reply_markup=kb.sub_menu)
 
 
 @dp.message(F.text == "1375")
@@ -46,7 +46,7 @@ async def show_notes(message: Message):
 
 @dp.message(F.text == "Python")
 async def show_timesheet(message: Message):
-    await message.answer(f"Выбирите действие: ", reply_markup=kb.py_menu)
+    await message.answer(f"Выбирите команду", reply_markup=kb.py_menu)
 
 
 @dp.message(F.text == "Курсы")
@@ -65,11 +65,11 @@ async def show_timesheet(message: Message):
 @dp.message(F.text, Command("test"))
 async def any_message(message: Message):
     await message.answer(
-        "Hello, *world*!", 
+        "Hello, *world*\\!", 
     )
 
 
-@dp.message(Command("hello"))
+@dp.message(F.text, Command("hello"))
 async def cmd_hello(message: Message):
     await message.answer(
         f"Hello, *{message.from_user.full_name}*",
