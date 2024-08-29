@@ -9,6 +9,7 @@ from datetime import datetime
 
 from config import config
 import menu.keyboards as kb
+import user.requests as request
 
 user_router = Router()
 
@@ -16,6 +17,7 @@ user_router = Router()
 
 @user_router.message(CommandStart())
 async def start_cmd(message: types.Message):
+    await request.set_user(message.from_user.id, message.from_user.full_name)
     await message.answer("Добро пожаловать\\!", reply_markup=kb.start_menu)
 
 

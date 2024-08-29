@@ -7,4 +7,5 @@ class User(Base):
     __tablename__ = "user"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    username: Mapped[str] = mapped_column(String(30), nullable=False)
+    username: Mapped[str] = mapped_column(String(150))
+    

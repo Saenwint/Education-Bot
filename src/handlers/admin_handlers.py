@@ -4,6 +4,7 @@ from aiogram.filters import Command, CommandStart
 from filters.chat_types import IsAdmin
 from config import config
 import menu.keyboards as kb
+import user.requests as request
 
 
 admin_router = Router()
@@ -11,6 +12,8 @@ admin_router.message.filter(IsAdmin())
 
 @admin_router.message(CommandStart())
 async def start_admin_cmd(message: types.Message):
+    await request.set_user(message.from_user.id, message.from_user.full_name)
+
     if message.from_user.id == config.ADMIN:
         await message.answer(f"Добро пожаловать, создатель\\!", reply_markup=kb.admin_menu_main)
     else:
