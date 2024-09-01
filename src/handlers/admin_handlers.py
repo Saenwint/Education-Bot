@@ -111,6 +111,10 @@ async def add_link(message: types.Message, state: FSMContext, session: AsyncSess
     await message.answer(str(data))
     await state.clear()
 
+@admin_router.message(F.text == "📋 Поправить расписание")
+async def edit_python(message: types.Message):
+    await message.answer("Выбирите команду", reply_markup=kb.admin_timesheet_menu)
+
 
 # Добавление расписания
 class AddTimesheet(StatesGroup):
@@ -132,7 +136,7 @@ class AddTimesheet(StatesGroup):
         'AddTimesheet:teacher': 'Введите преподавателя заново'
     }
 
-@admin_router.message(StateFilter(None), F.text == "📋 Добавить расписание")
+@admin_router.message(StateFilter(None), F.text == "Добавить расписание")
 async def add_group(message: types.Message, state: FSMContext):
 
     await message.answer(f"Введите группу", reply_markup=types.ReplyKeyboardRemove())
@@ -239,3 +243,39 @@ async def add_timesheet(message: types.Message, state: FSMContext, session: Asyn
     await session.commit()
     await message.answer(str(data))
     await state.clear()
+
+class DeleteTimesheet(StatesGroup):
+    id = State()
+
+
+@admin_router.message(StateFilter(None), F.text == "Удалить расписание")
+async def delete_timesheet_by_id(message: types.Message, state: FSMContext):
+
+    await message.answer(f"Введите id расписания", reply_markup=types.ReplyKeyboardRemove())
+    await state.set_state(DeleteTimesheet.id)
+
+
+@admin_router.message(DeleteTimesheet.id, F.text)
+async def delete_timesheet(message: types.Message, state: FSMContext, session: AsyncSession):
+    timesheet_id = int(message.text)  
+    await tm_request.delete_timesheet(session, timesheet_id)
+    await message.answer(f"Расписание с id {timesheet_id} удалено")
+
+    await state.clear()
+
+
+@admin_router.message(F.text == "Вся информация")
+async def edit_python(message: types.Message, session: AsyncSession):
+    timesheets = await tm_request.get_all_info(session)
+
+    weekly_schedule = {}
+
+    for timesheet in timesheets:
+        if timesheet.day not in weekly_schedule:
+            weekly_schedule[timesheet.day] = []
+        weekly_schedule[timesheet.day].append(f"{timesheet.id}, {timesheet.group}, {timesheet.week}, {timesheet.day}, {timesheet.time}, {timesheet.cabinet}, {timesheet.subject}, {timesheet.teacher}")
+    
+    for day, schedule in weekly_schedule.items():
+        await message.answer(f"--- {day} ---\n" + "\n".join(schedule))
+    
+    await message.answer("Все Расписание")

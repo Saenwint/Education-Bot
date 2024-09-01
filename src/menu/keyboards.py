@@ -94,7 +94,7 @@ admin_main_menu = ReplyKeyboardMarkup(
 admin_panel_menu = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text="📋 Добавить расписание"),
+            KeyboardButton(text="📋 Поправить расписание"),
             KeyboardButton(text="🐍 Поправить python")
         ],
         [
@@ -104,6 +104,25 @@ admin_panel_menu = ReplyKeyboardMarkup(
     resize_keyboard=True,
     one_time_keyboard=False,
     input_field_placeholder="Меню"
+)
+
+admin_timesheet_menu = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text="Добавить расписание"),
+            KeyboardButton(text="Удалить расписание")
+        ],
+        [
+            KeyboardButton(text="Изменить расписание"),
+            KeyboardButton(text="Вся информация"),
+        ],
+        [
+            KeyboardButton(text="⬅️ Go back")
+        ]
+    ],
+    resize_keyboard=True,
+    one_time_keyboard=False,
+    input_field_placeholder="📋 Расписание"
 )
 
 admin_py_menu = ReplyKeyboardMarkup(
