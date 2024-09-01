@@ -109,8 +109,8 @@ admin_panel_menu = ReplyKeyboardMarkup(
 admin_py_menu = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text="Изменить курсы"),
-            KeyboardButton(text="Изменить материалы")
+            KeyboardButton(text="Добавить курсы"),
+            KeyboardButton(text="Добавить материалы")
         ],
         [
             KeyboardButton(text="⬅️ Go back")

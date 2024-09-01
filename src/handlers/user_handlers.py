@@ -10,6 +10,7 @@ from config import config
 import menu.keyboards as kb
 import user.requests as us_request
 import timesheet.requests as tm_request
+import materials.requests as m_request
 
 user_router = Router()
 
@@ -123,13 +124,21 @@ async def show_python(message: Message):
 
 
 @user_router.message(F.text == "Курсы")
-async def show_python_courses(message: Message):
-    await message.answer(f"Все добавленные курсы по Python")
+async def show_python_courses(message: Message, session: AsyncSession):
+    courses = await m_request.get_courses(session)
+    response = "Все курсы по Python \n"
+    for course in courses:
+        response += f"{course.description} - {course.link}\n"
+    await message.answer(response)
 
 
 @user_router.message(F.text == "Материалы")
-async def show_python_materials(message: Message):
-    await message.answer(f"Все добавленные материалы по Python")
+async def show_python_materials(message: Message, session: AsyncSession):
+    materials = await m_request.get_materials(session)
+    response = "Все материалы по Python \n"
+    for material in materials:
+        response += f"{material.description} - {material.link}\n"
+    await message.answer(response)
 
 
 
