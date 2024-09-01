@@ -70,22 +70,22 @@ async def add_group(message: types.Message, state: FSMContext):
 
 
 @admin_router.message(AddTimesheet.group, F.text)
-async def add_day(message: types.Message, state: FSMContext):
-    await state.update_data(group=message.text)
-    await message.answer(f"Введите день")
-    await state.set_state(AddTimesheet.day)
-
-
-@admin_router.message(AddTimesheet.day, F.text)
 async def add_week(message: types.Message, state: FSMContext):
-    await state.update_data(day=message.text)
+    await state.update_data(group=message.text)
     await message.answer(f"Введите неделю")
     await state.set_state(AddTimesheet.week)
 
 
 @admin_router.message(AddTimesheet.week, F.text)
-async def add_time(message: types.Message, state: FSMContext):
+async def add_day(message: types.Message, state: FSMContext):
     await state.update_data(week=message.text)
+    await message.answer(f"Введите день")
+    await state.set_state(AddTimesheet.day)
+
+
+@admin_router.message(AddTimesheet.day, F.text)
+async def add_time(message: types.Message, state: FSMContext):
+    await state.update_data(day=message.text)
     await message.answer(f"Введите время")
     await state.set_state(AddTimesheet.time)
 
@@ -114,7 +114,7 @@ async def add_teacher(message: types.Message, state: FSMContext):
 @admin_router.message(AddTimesheet.teacher, F.text)
 async def add_timesheet(message: types.Message, state: FSMContext, session: AsyncSession):
     await state.update_data(teacher=message.text)
-    await message.answer(f"Добавлено", reply_markup=kb.admin_main_menu)
+    await message.answer(f"Добавлено", reply_markup=kb.admin_panel_menu)
     data = await state.get_data()
 
     time_obj = datetime.strptime(data["time"], '%H:%M').time()
@@ -132,4 +132,3 @@ async def add_timesheet(message: types.Message, state: FSMContext, session: Asyn
     await session.commit()
     await message.answer(str(data))
     await state.clear()
-

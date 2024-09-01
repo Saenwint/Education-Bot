@@ -13,7 +13,7 @@ day_to_weekday = {
 }
 
 async def get_even_timesheet_1375(session: AsyncSession):
-    query = select(Timesheet).where(Timesheet.group == 1375, Timesheet.week == 0)
+    query = select(Timesheet).where(Timesheet.group == 1375, Timesheet.week == 0).order_by(Timesheet.day)
     result = await session.execute(query)
     timesheets = result.scalars().all()
 
@@ -24,7 +24,7 @@ async def get_even_timesheet_1375(session: AsyncSession):
 
 
 async def get_noteven_timesheet_1375(session: AsyncSession):
-    query = select(Timesheet).where(Timesheet.group == 1375, Timesheet.week == 1)
+    query = select(Timesheet).where(Timesheet.group == 1375, Timesheet.week == 1).order_by(Timesheet.day)
     result = await session.execute(query)
     timesheets = result.scalars().all()
 
@@ -34,7 +34,7 @@ async def get_noteven_timesheet_1375(session: AsyncSession):
     return timesheets
 
 async def get_even_timesheet_1376(session: AsyncSession):
-    query = select(Timesheet).where(Timesheet.group == 1376, Timesheet.week == 0)
+    query = select(Timesheet).where(Timesheet.group == 1376, Timesheet.week == 0).order_by(Timesheet.day)
     result = await session.execute(query)
     timesheets = result.scalars().all()
 
@@ -44,7 +44,7 @@ async def get_even_timesheet_1376(session: AsyncSession):
     return timesheets
 
 async def get_noteven_timesheet_1376(session: AsyncSession):
-    query = select(Timesheet).where(Timesheet.group == 1376, Timesheet.week == 1)
+    query = select(Timesheet).where(Timesheet.group == 1376, Timesheet.week == 1).order_by(Timesheet.day)
     result = await session.execute(query)
     timesheets = result.scalars().all()
 

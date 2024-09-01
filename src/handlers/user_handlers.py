@@ -41,43 +41,75 @@ async def show_timesheet_1375(message: Message):
 
 @user_router.message(F.text == "Четная 1375")
 async def show_even_timesheet_1375(message: Message, session: AsyncSession):
-    for timesheet in await tm_request.get_even_timesheet_1375(session):
-        await message.answer(
-            f"{timesheet.day}, {timesheet.week}, {timesheet.time}"
-        )
-    await message.answer("Even Timesheet for 1375")
+    timesheets = await tm_request.get_even_timesheet_1375(session)
+    
+    weekly_schedule = {}
+
+    for timesheet in timesheets:
+        if timesheet.day not in weekly_schedule:
+            weekly_schedule[timesheet.day] = []
+        weekly_schedule[timesheet.day].append(f"{timesheet.subject}, {timesheet.time}, {timesheet.teacher}")
+    
+    for day, schedule in weekly_schedule.items():
+        await message.answer(f"--- {day} ---\n" + "\n".join(schedule))
+    
+    await message.answer("Расписание четной недели 1375")
 
 
 @user_router.message(F.text == "Нечетная 1375")
-async def show_even_timesheet_1375(message: Message, session: AsyncSession):
-    for timesheet in await tm_request.get_noteven_timesheet_1375(session):
-        await message.answer(
-            f"{timesheet.day}, {timesheet.week}, {timesheet.time}"
-        )
-    await message.answer("Noteven Timesheet for 1375")
+async def show_noteven_timesheet_1375(message: Message, session: AsyncSession):
+    timesheets = await tm_request.get_noteven_timesheet_1375(session)
+    
+    weekly_schedule = {}
+
+    for timesheet in timesheets:
+        if timesheet.day not in weekly_schedule:
+            weekly_schedule[timesheet.day] = []
+        weekly_schedule[timesheet.day].append(f"{timesheet.subject}, {timesheet.time}, {timesheet.teacher}")
+    
+    for day, schedule in weekly_schedule.items():
+        await message.answer(f"--- {day} ---\n" + "\n".join(schedule))
+    
+    await message.answer("Расписание нечетной недели 1375")
 
 
 @user_router.message(F.text == "1376")
 async def show_timesheet_1376(message: Message):
-    await message.answer("Выберете неделю", reply_markup=kb.timesheet_1375_menu)
+    await message.answer("Выберете неделю", reply_markup=kb.timesheet_1376_menu)
 
 
 @user_router.message(F.text == "Четная 1376")
 async def show_even_timesheet_1376(message: Message, session: AsyncSession):
-    for timesheet in await tm_request.get_even_timesheet_1376(session):
-        await message.answer(
-            f"{timesheet.day}, {timesheet.week}, {timesheet.time}"
-        )
-    await message.answer("Even Timesheet for 1376")
+    timesheets = await tm_request.get_even_timesheet_1376(session)
+    
+    weekly_schedule = {}
+
+    for timesheet in timesheets:
+        if timesheet.day not in weekly_schedule:
+            weekly_schedule[timesheet.day] = []
+        weekly_schedule[timesheet.day].append(f"{timesheet.subject}, {timesheet.time}, {timesheet.teacher}")
+    
+    for day, schedule in weekly_schedule.items():
+        await message.answer(f"--- {day} ---\n" + "\n".join(schedule))
+    
+    await message.answer("Расписание четной недели 1376")
 
 
 @user_router.message(F.text == "Нечетная 1376")
-async def show_even_timesheet_1376(message: Message, session: AsyncSession):
-    for timesheet in await tm_request.get_noteven_timesheet_1376(session):
-        await message.answer(
-            f"{timesheet.day}, {timesheet.week}, {timesheet.time}"
-        )
-    await message.answer("Noteven Timesheet for 1376")
+async def show_noteven_timesheet_1376(message: Message, session: AsyncSession):
+    timesheets = await tm_request.get_noteven_timesheet_1376(session)
+    
+    weekly_schedule = {}
+
+    for timesheet in timesheets:
+        if timesheet.day not in weekly_schedule:
+            weekly_schedule[timesheet.day] = []
+        weekly_schedule[timesheet.day].append(f"{timesheet.subject}, {timesheet.time}, {timesheet.teacher}")
+    
+    for day, schedule in weekly_schedule.items():
+        await message.answer(f"--- {day} ---\n" + "\n".join(schedule))
+    
+    await message.answer("Расписание нечетной недели 1376")
 
 
 @user_router.message(F.text == '🗂 Заметки')
@@ -99,9 +131,6 @@ async def show_python_courses(message: Message):
 async def show_python_materials(message: Message):
     await message.answer(f"Все добавленные материалы по Python")
 
-#=============================--=============================
-# Если не указать фильтр F.text, 
-# то хэндлер сработает даже на картинку с подписью /test
 
 
 
