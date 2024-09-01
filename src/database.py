@@ -2,6 +2,8 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession, create_asyn
 
 from models.base import Base
 from user.models import User
+from timesheet.models import Timesheet
+from materials.models import Courses, Materials
 from config import config
 
 engine = create_async_engine(

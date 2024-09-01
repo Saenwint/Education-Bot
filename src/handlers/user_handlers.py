@@ -1,15 +1,15 @@
-from aiogram.utils.formatting import (
-    Bold, as_list, as_marked_section, as_key_value, HashTag
-)
 from aiogram import F, md, Router
 from aiogram.types import Message
 from aiogram.filters import Command, CommandStart, CommandObject
 from aiogram import types
 from datetime import datetime
+from sqlalchemy.ext.asyncio import AsyncSession
+
 
 from config import config
 import menu.keyboards as kb
-import user.requests as request
+import user.requests as us_request
+import timesheet.requests as tm_request
 
 user_router = Router()
 
@@ -17,66 +17,91 @@ user_router = Router()
 
 @user_router.message(CommandStart())
 async def start_cmd(message: types.Message):
-    await request.set_user(message.from_user.id, message.from_user.full_name)
-    await message.answer("Добро пожаловать\\!", reply_markup=kb.start_menu)
+    await us_request.set_user(message.from_user.id, message.from_user.full_name)
+    await message.answer("Добро пожаловать", reply_markup=kb.start_menu)
 
 
 @user_router.message(F.text == "⬅️ Назад")
 async def go_back(message: Message):
     if message.from_user.id == config.ADMIN:
-        await message.answer("Выберите команду", reply_markup=kb.admin_menu_main)
+        await message.answer("Выберете команду", reply_markup=kb.admin_main_menu)
     else:
-        await message.answer("Выберите команду", reply_markup=kb.start_menu)
+        await message.answer("Выберете команду", reply_markup=kb.start_menu)
 
 
 @user_router.message(F.text == "📋 Расписание")
 async def show_timesheet(message: Message):
-    await message.answer(f"Выбирите группу", reply_markup=kb.sub_menu)
+    await message.answer("Выберете группу", reply_markup=kb.timesheet_menu)
 
 
 @user_router.message(F.text == "1375")
-async def show_timesheet(message: Message):
-    await message.answer(f"Расписание для группы 1375: ")
+async def show_timesheet_1375(message: Message):
+    await message.answer("Выберете неделю", reply_markup=kb.timesheet_1375_menu)
+
+
+@user_router.message(F.text == "Четная 1375")
+async def show_even_timesheet_1375(message: Message, session: AsyncSession):
+    for timesheet in await tm_request.get_even_timesheet_1375(session):
+        await message.answer(
+            f"{timesheet.day}, {timesheet.week}, {timesheet.time}"
+        )
+    await message.answer("Even Timesheet for 1375")
+
+
+@user_router.message(F.text == "Нечетная 1375")
+async def show_even_timesheet_1375(message: Message, session: AsyncSession):
+    for timesheet in await tm_request.get_noteven_timesheet_1375(session):
+        await message.answer(
+            f"{timesheet.day}, {timesheet.week}, {timesheet.time}"
+        )
+    await message.answer("Noteven Timesheet for 1375")
 
 
 @user_router.message(F.text == "1376")
-async def show_timesheet(message: Message):
-    await message.answer(f"Расписание для группы 1376: ")
+async def show_timesheet_1376(message: Message):
+    await message.answer("Выберете неделю", reply_markup=kb.timesheet_1375_menu)
 
 
-@user_router.message(F.text.in_({'🗂 Заметки', 'заметки', 'Заметки', 'notes'}) )
+@user_router.message(F.text == "Четная 1376")
+async def show_even_timesheet_1376(message: Message, session: AsyncSession):
+    for timesheet in await tm_request.get_even_timesheet_1376(session):
+        await message.answer(
+            f"{timesheet.day}, {timesheet.week}, {timesheet.time}"
+        )
+    await message.answer("Even Timesheet for 1376")
+
+
+@user_router.message(F.text == "Нечетная 1376")
+async def show_even_timesheet_1376(message: Message, session: AsyncSession):
+    for timesheet in await tm_request.get_noteven_timesheet_1376(session):
+        await message.answer(
+            f"{timesheet.day}, {timesheet.week}, {timesheet.time}"
+        )
+    await message.answer("Noteven Timesheet for 1376")
+
+
+@user_router.message(F.text == '🗂 Заметки')
 async def show_notes(message: Message):
     await message.answer(f"В разработке")
 
 
 @user_router.message(F.text == "🐍 Python")
-async def show_timesheet(message: Message):
-    await message.answer(f"Выбирите команду", reply_markup=kb.py_menu)
+async def show_python(message: Message):
+    await message.answer(f"Выберете команду", reply_markup=kb.py_menu)
 
 
 @user_router.message(F.text == "Курсы")
-async def show_timesheet(message: Message):
-    await message.answer(f"Все добавленные курсы по Python: ")
+async def show_python_courses(message: Message):
+    await message.answer(f"Все добавленные курсы по Python")
 
 
 @user_router.message(F.text == "Материалы")
-async def show_timesheet(message: Message):
-    await message.answer(f"Все добавленные материалы по Python: ")
+async def show_python_materials(message: Message):
+    await message.answer(f"Все добавленные материалы по Python")
 
 #=============================--=============================
 # Если не указать фильтр F.text, 
 # то хэндлер сработает даже на картинку с подписью /test
-@user_router.message(F.text, Command("test"))
-async def any_message(message: Message):
-    await message.answer(
-        "Hello, *world*\\!", 
-    )
 
-
-@user_router.message(F.text, Command("hello"))
-async def cmd_hello(message: Message):
-    await message.answer(
-        f"Hello, *{message.from_user.full_name}*",
-    )
 
 

@@ -15,11 +15,41 @@ start_menu = ReplyKeyboardMarkup(
     input_field_placeholder="Меню"
 )
 
-sub_menu = ReplyKeyboardMarkup(
+timesheet_menu = ReplyKeyboardMarkup(
     keyboard=[
         [
             KeyboardButton(text="1375"),
             KeyboardButton(text="1376")
+        ],
+        [
+            KeyboardButton(text="⬅️ Назад")
+        ]
+    ],
+    resize_keyboard=True,
+    one_time_keyboard=False,
+    input_field_placeholder="📋 Расписание"
+)
+
+timesheet_1375_menu = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text="Четная 1375"),
+            KeyboardButton(text="Нечетная 1375")
+        ],
+        [
+            KeyboardButton(text="⬅️ Назад")
+        ]
+    ],
+    resize_keyboard=True,
+    one_time_keyboard=False,
+    input_field_placeholder="📋 Расписание"
+)
+
+timesheet_1376_menu = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text="Четная 1376"),
+            KeyboardButton(text="Нечетная 1376")
         ],
         [
             KeyboardButton(text="⬅️ Назад")
@@ -45,7 +75,7 @@ py_menu = ReplyKeyboardMarkup(
     input_field_placeholder="🐍 Python"
 )
 
-admin_menu_main = ReplyKeyboardMarkup(
+admin_main_menu = ReplyKeyboardMarkup(
     keyboard=[
         [
             KeyboardButton(text="📋 Расписание"),
@@ -64,7 +94,7 @@ admin_menu_main = ReplyKeyboardMarkup(
 admin_panel_menu = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text="📋 Изменить расписание"),
+            KeyboardButton(text="📋 Добавить расписание"),
             KeyboardButton(text="🐍 Поправить python")
         ],
         [
@@ -75,22 +105,8 @@ admin_panel_menu = ReplyKeyboardMarkup(
     one_time_keyboard=False,
     input_field_placeholder="Меню"
 )
-admin_menu_timesheet = ReplyKeyboardMarkup(
-    keyboard=[
-        [
-            KeyboardButton(text="Изменить для 1375"),
-            KeyboardButton(text="Изменить для 1376")
-        ],
-        [
-            KeyboardButton(text="⬅️ Go back")
-        ]
-    ],
-    resize_keyboard=True,
-    one_time_keyboard=False,
-    input_field_placeholder="📋 Расписание"
-)
 
-admin_menu_py = ReplyKeyboardMarkup(
+admin_py_menu = ReplyKeyboardMarkup(
     keyboard=[
         [
             KeyboardButton(text="Изменить курсы"),
