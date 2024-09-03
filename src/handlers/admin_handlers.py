@@ -13,12 +13,14 @@ from config import config
 import menu.keyboards as kb
 import user.requests as user_request
 import timesheet.requests as tm_request
+import materials.requests as m_request
 from database import session_maker
 
 
 admin_router = Router()
 admin_router.message.filter(IsAdmin())
 
+# Стартовая команда(добавить меню для нее)
 @admin_router.message(CommandStart())
 async def start_admin_cmd(message: types.Message):
     await user_request.set_user(message.from_user.id, message.from_user.username)
@@ -28,7 +30,7 @@ async def start_admin_cmd(message: types.Message):
     else:
         await message.answer("Добро пожаловать", reply_markup=kb.start_menu)
     
-
+# Панель админа
 @admin_router.message(F.text == "Admin панель")
 async def get_admin_panel(message: types.Message):
     await message.answer("Вы вошли в админ панель", reply_markup=kb.admin_panel_menu)
@@ -42,7 +44,13 @@ async def go_back(message: types.Message):
 @admin_router.message(F.text == "🐍 Поправить python")
 async def edit_python(message: types.Message):
     await message.answer("Выбирите команду", reply_markup=kb.admin_py_menu)
-# Состояния
+
+
+# ==================Courses==================
+
+@admin_router.message(F.text == "Поправить курсы")
+async def edit_python(message: types.Message):
+    await message.answer("Выбирите команду", reply_markup=kb.admin_courses_menu)
 
 # Добавление курсов
 class AddCourses(StatesGroup):
@@ -77,6 +85,52 @@ async def add_link(message: types.Message, state: FSMContext, session: AsyncSess
     await message.answer(str(data))
     await state.clear()
 
+# Удаление курсов
+class DeleteCourses(StatesGroup):
+    id = State()
+
+
+@admin_router.message(StateFilter(None), F.text == "Удалить курс")
+async def delete_courses_by_id(message: types.Message, state: FSMContext):
+
+    await message.answer(f"Введите id курса", reply_markup=types.ReplyKeyboardRemove())
+    await state.set_state(DeleteCourses.id)
+
+
+@admin_router.message(DeleteCourses.id, F.text)
+async def delete_courses(message: types.Message, state: FSMContext, session: AsyncSession):
+    
+    if message.text.isnumeric() == False:
+        await message.answer(f"Введите корректный ID")
+    else:
+        courses_id = int(message.text)
+        deleted = await m_request.delete_courses(session, courses_id)
+        if deleted:
+            await message.answer(f"Курс с ID {courses_id} удален.", reply_markup=kb.admin_panel_menu)
+        else:
+            await message.answer(f"Курс с ID {courses_id} не найден.", reply_markup=kb.admin_courses_menu)
+
+        await state.clear()
+
+# Получение всей информации
+@admin_router.message(F.text == "All info курсы")
+async def courses_info(message: types.Message, session: AsyncSession):
+    courses = await m_request.get_courses(session)
+
+    if not courses:
+        await message.answer("Курсы еще не добавлены")
+    else:
+        response = "Все курсы по Python \n"
+        for course in courses:
+            response += f"ID: {course.id}; INFO: {course.description[:15]}... - {course.link}\n"
+        await message.answer(response)
+    
+
+# ==================Materials==================
+
+@admin_router.message(F.text == "Поправить материалы")
+async def edit_python(message: types.Message):
+    await message.answer("Выбирите команду", reply_markup=kb.admin_materials_menu)
 
 # Добавление материалов
 class AddMaterials(StatesGroup):
@@ -110,6 +164,48 @@ async def add_link(message: types.Message, state: FSMContext, session: AsyncSess
     await session.commit()
     await message.answer(str(data))
     await state.clear()
+
+
+# Удаление материалов
+class DeleteMaterials(StatesGroup):
+    id = State()
+
+
+@admin_router.message(StateFilter(None), F.text == "Удалить материал")
+async def delete_materials_by_id(message: types.Message, state: FSMContext):
+
+    await message.answer(f"Введите id материала", reply_markup=types.ReplyKeyboardRemove())
+    await state.set_state(DeleteMaterials.id)
+
+
+@admin_router.message(DeleteMaterials.id, F.text)
+async def delete_materials(message: types.Message, state: FSMContext, session: AsyncSession):
+    if message.text.isnumeric() == False:
+        await message.answer(f"Введите корректный ID")
+    else:
+        materials_id = int(message.text)
+        deleted = await m_request.delete_materials(session, materials_id)
+        if deleted:
+            await message.answer(f"Материал с ID {materials_id} удален.", reply_markup=kb.admin_panel_menu)
+        else:
+            await message.answer(f"Материал с ID {materials_id} не найден.", reply_markup=kb.admin_materials_menu)
+        
+        await state.clear()
+
+# Получение всей информации
+@admin_router.message(F.text == "All info материалы")
+async def materials_info(message: types.Message, session: AsyncSession):
+    materials = await m_request.get_materials(session)
+
+    if not materials:
+        await message.answer("Материалы еще не добавлены")
+    else:
+        response = "Все материалы по Python \n"
+        for material in materials:
+            response += f"ID: {material.id}; INFO: {material.description[:15]}... - {material.link}\n"
+        await message.answer(response)
+
+# ==================Timesheet==================
 
 @admin_router.message(F.text == "📋 Поправить расписание")
 async def edit_python(message: types.Message):
@@ -257,25 +353,33 @@ async def delete_timesheet_by_id(message: types.Message, state: FSMContext):
 
 @admin_router.message(DeleteTimesheet.id, F.text)
 async def delete_timesheet(message: types.Message, state: FSMContext, session: AsyncSession):
-    timesheet_id = int(message.text)  
-    await tm_request.delete_timesheet(session, timesheet_id)
-    await message.answer(f"Расписание с id {timesheet_id} удалено")
+    if message.text.isnumeric() == False:
+        await message.answer(f"Введите корректный ID")
+    else:
+        timesheet_id = int(message.text)
+        deleted = await tm_request.delete_timesheet(session, timesheet_id)
+        if deleted:
+            await message.answer(f"Расписание с ID {timesheet_id} удалено.", reply_markup=kb.admin_panel_menu)
+        else:
+            await message.answer(f"Расписание с ID {timesheet_id} не найдено.", reply_markup=kb.admin_timesheet_menu)
+        await state.clear()
 
-    await state.clear()
-
-
-@admin_router.message(F.text == "Вся информация")
-async def edit_python(message: types.Message, session: AsyncSession):
+# Получение всей информации
+@admin_router.message(F.text == "All info расписание")
+async def timesheet_info(message: types.Message, session: AsyncSession):
     timesheets = await tm_request.get_all_info(session)
 
-    weekly_schedule = {}
+    if not timesheets:
+        await message.answer("Расписание еще не добавлено")
+    else:
+        weekly_schedule = {}
 
-    for timesheet in timesheets:
-        if timesheet.day not in weekly_schedule:
-            weekly_schedule[timesheet.day] = []
-        weekly_schedule[timesheet.day].append(f"{timesheet.id}, {timesheet.group}, {timesheet.week}, {timesheet.day}, {timesheet.time}, {timesheet.cabinet}, {timesheet.subject}, {timesheet.teacher}")
-    
-    for day, schedule in weekly_schedule.items():
-        await message.answer(f"--- {day} ---\n" + "\n".join(schedule))
-    
-    await message.answer("Все Расписание")
+        for timesheet in timesheets:
+            if timesheet.day not in weekly_schedule:
+                weekly_schedule[timesheet.day] = []
+            weekly_schedule[timesheet.day].append(f"ID: {timesheet.id}; INFO {timesheet.group}, {timesheet.week}, {timesheet.time}, {timesheet.cabinet}, {timesheet.subject}, {timesheet.teacher}")
+        
+        for day, schedule in weekly_schedule.items():
+            await message.answer(f"--- {day} ---\n" + "\n".join(schedule))
+        
+        await message.answer("Все Расписание")

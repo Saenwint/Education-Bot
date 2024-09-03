@@ -71,9 +71,17 @@ async def update_timesheet(session: AsyncSession, timesheet_id: int, data):
     await session.commit()
 
 async def delete_timesheet(session: AsyncSession, timesheet_id: int):
+    result = await session.execute(select(Timesheet).where(Timesheet.id == timesheet_id))
+    course = result.scalar_one_or_none()
+
+    if course is None:
+        return False  # Курс не найден
+
+    # Если курс найден, удаляем его
     query = delete(Timesheet).where(Timesheet.id == timesheet_id)
     await session.execute(query)
     await session.commit()
+    return True  # Курс удален
 
 
 async def get_all_info(session: AsyncSession):

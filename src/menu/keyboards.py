@@ -74,7 +74,7 @@ py_menu = ReplyKeyboardMarkup(
     one_time_keyboard=False,
     input_field_placeholder="🐍 Python"
 )
-
+# ADMIN MENU
 admin_main_menu = ReplyKeyboardMarkup(
     keyboard=[
         [
@@ -114,7 +114,7 @@ admin_timesheet_menu = ReplyKeyboardMarkup(
         ],
         [
             KeyboardButton(text="Изменить расписание"),
-            KeyboardButton(text="Вся информация"),
+            KeyboardButton(text="All info расписание"),
         ],
         [
             KeyboardButton(text="⬅️ Go back")
@@ -128,11 +128,46 @@ admin_timesheet_menu = ReplyKeyboardMarkup(
 admin_py_menu = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text="Добавить курсы"),
-            KeyboardButton(text="Добавить материалы")
+            KeyboardButton(text="Поправить курсы"),
+            KeyboardButton(text="Поправить материалы")
         ],
         [
             KeyboardButton(text="⬅️ Go back")
+        ]
+    ],
+    resize_keyboard=True,
+    one_time_keyboard=False,
+    input_field_placeholder="🐍 Python"
+)
+
+admin_courses_menu = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text="Добавить курсы"),
+            KeyboardButton(text="Удалить курс")
+        ],
+        [
+            KeyboardButton(text="All info курсы"),
+            KeyboardButton(text="⬅️ Go back")
+
+        ]
+    ],
+    resize_keyboard=True,
+    one_time_keyboard=False,
+    input_field_placeholder="🐍 Python"
+)
+
+
+admin_materials_menu = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text="Добавить материалы"),
+            KeyboardButton(text="Удалить материал")
+        ],
+        [
+            KeyboardButton(text="All info материалы"),
+            KeyboardButton(text="⬅️ Go back")
+
         ]
     ],
     resize_keyboard=True,
