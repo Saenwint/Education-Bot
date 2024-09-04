@@ -4,9 +4,11 @@ from aiogram.filters import Command, CommandStart, CommandObject
 from aiogram import types
 from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
+from aiogram.enums import ParseMode
 
 
 from config import config
+from components.escape_markdown import escape_markdown
 import menu.keyboards as kb
 import user.requests as us_request
 import timesheet.requests as tm_request
@@ -53,10 +55,12 @@ async def show_even_timesheet_1375(message: Message, session: AsyncSession):
         for timesheet in timesheets:
             if timesheet.day not in weekly_schedule:
                 weekly_schedule[timesheet.day] = []
-            weekly_schedule[timesheet.day].append(f"{timesheet.subject}, {timesheet.time}, {timesheet.teacher}")
+            timesheet_subject = escape_markdown(timesheet.subject)
+            timesheet_teacher = escape_markdown(timesheet.teacher)
+            weekly_schedule[timesheet.day].append(f"{timesheet.subject}, {timesheet.time_start} \\- {timesheet.time_end}, {timesheet_subject},{timesheet_teacher}")
         
         for day, schedule in weekly_schedule.items():
-            await message.answer(f"--- {day} ---\n" + "\n".join(schedule))
+            await message.answer(f"\-\-\- {day} \-\-\-\n" + "\n".join(schedule))
         
         await message.answer("Расписание четной недели 1375")
 
@@ -73,10 +77,12 @@ async def show_noteven_timesheet_1375(message: Message, session: AsyncSession):
         for timesheet in timesheets:
             if timesheet.day not in weekly_schedule:
                 weekly_schedule[timesheet.day] = []
-            weekly_schedule[timesheet.day].append(f"{timesheet.subject}, {timesheet.time}, {timesheet.teacher}")
+            timesheet_subject = escape_markdown(timesheet.subject)
+            timesheet_teacher = escape_markdown(timesheet.teacher)
+            weekly_schedule[timesheet.day].append(f"{timesheet.subject}, {timesheet.time_start} \\- {timesheet.time_end}, {timesheet_subject},{timesheet_teacher}")
         
         for day, schedule in weekly_schedule.items():
-            await message.answer(f"--- {day} ---\n" + "\n".join(schedule))
+            await message.answer(f"\-\-\- {day} \-\-\-\n" + "\n".join(schedule))
         
         await message.answer("Расписание нечетной недели 1375")
 
@@ -98,10 +104,12 @@ async def show_even_timesheet_1376(message: Message, session: AsyncSession):
         for timesheet in timesheets:
             if timesheet.day not in weekly_schedule:
                 weekly_schedule[timesheet.day] = []
-            weekly_schedule[timesheet.day].append(f"{timesheet.subject}, {timesheet.time}, {timesheet.teacher}")
+            timesheet_subject = escape_markdown(timesheet.subject)
+            timesheet_teacher = escape_markdown(timesheet.teacher)
+            weekly_schedule[timesheet.day].append(f"{timesheet.subject}, {timesheet.time_start} \\- {timesheet.time_end}, {timesheet_subject},{timesheet_teacher}")
         
         for day, schedule in weekly_schedule.items():
-            await message.answer(f"--- {day} ---\n" + "\n".join(schedule))
+            await message.answer(f"\-\-\- {day} \-\-\-\n" + "\n".join(schedule))
         
         await message.answer("Расписание четной недели 1376")
 
@@ -119,10 +127,12 @@ async def show_noteven_timesheet_1376(message: Message, session: AsyncSession):
         for timesheet in timesheets:
             if timesheet.day not in weekly_schedule:
                 weekly_schedule[timesheet.day] = []
-            weekly_schedule[timesheet.day].append(f"{timesheet.subject}, {timesheet.time}, {timesheet.teacher}")
+            timesheet_subject = escape_markdown(timesheet.subject)
+            timesheet_teacher = escape_markdown(timesheet.teacher)
+            weekly_schedule[timesheet.day].append(f"{timesheet.subject}, {timesheet.time_start} \\- {timesheet.time_end}, {timesheet_subject},{timesheet_teacher}")
         
         for day, schedule in weekly_schedule.items():
-            await message.answer(f"--- {day} ---\n" + "\n".join(schedule))
+            await message.answer(f"\-\-\- {day} \-\-\-\n" + "\n".join(schedule))
         
         await message.answer("Расписание нечетной недели 1376")
 
@@ -142,14 +152,16 @@ async def show_python(message: Message):
 
 @user_router.message(F.text == "Курсы")
 async def show_python_courses(message: Message, session: AsyncSession):
-    courses = await m_request.get_materials(session)
+    courses = await m_request.get_courses(session)
 
     if not courses:
         await message.answer("Курсы еще не добавлены")
     else:
         response = "Все курсы по Python \n"
         for course in courses:
-            response += f"{course.description} - {course.link}\n"
+            course_description = escape_markdown(course.description)
+            course_link = escape_markdown(course.link)
+            response += f"{course_description} \- {course_link}\n"
         await message.answer(response)
 
 # ==================Materials==================
@@ -163,7 +175,9 @@ async def show_python_materials(message: Message, session: AsyncSession):
     else:
         response = "Все материалы по Python \n"
         for material in materials:
-            response += f"{material.description} - {material.link}\n"
+            material_description = escape_markdown(material.description)
+            material_link = escape_markdown(material.link)
+            response += f"{material_description} \- {material_link}\n"
         await message.answer(response)
 
 

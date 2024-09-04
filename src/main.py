@@ -25,8 +25,8 @@ dp.include_router(user_router)
 bot = Bot(
     token=config.bot_token.get_secret_value(),
     default=DefaultBotProperties(
-    #parse_mode=ParseMode.MARKDOWN_V2
-    parse_mode=ParseMode.HTML
+    parse_mode=ParseMode.MARKDOWN_V2
+    #parse_mode=ParseMode.HTML
     )
 )
 
@@ -37,6 +37,7 @@ async def on_startup(bot):
 
 async def on_shutdown(bot):
     print('shutdown bot')
+    await drop_db()
 
 
 @dp.message(F.text == "id")

@@ -3,10 +3,10 @@ from aiogram import Router, types, F
 from aiogram.filters import Command, CommandStart, StateFilter
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
-from database import session_maker
 from materials.models import Courses, Materials
 from timesheet.models import Timesheet
 from sqlalchemy.ext.asyncio import AsyncSession
+from aiogram.enums import ParseMode
 
 from filters.chat_types import IsAdmin
 from config import config
@@ -14,8 +14,7 @@ import menu.keyboards as kb
 import user.requests as user_request
 import timesheet.requests as tm_request
 import materials.requests as m_request
-from database import session_maker
-
+from components.escape_markdown import escape_markdown
 
 admin_router = Router()
 admin_router.message.filter(IsAdmin())
@@ -49,7 +48,7 @@ async def edit_python(message: types.Message):
 # ==================Courses==================
 
 @admin_router.message(F.text == "Поправить курсы")
-async def edit_python(message: types.Message):
+async def edit_courses(message: types.Message):
     await message.answer("Выбирите команду", reply_markup=kb.admin_courses_menu)
 
 # Добавление курсов
@@ -74,6 +73,7 @@ async def add_link(message: types.Message, state: FSMContext, session: AsyncSess
     await state.update_data(link=message.text)
     await message.answer(f"Добавлено", reply_markup=kb.admin_panel_menu)
     data = await state.get_data()
+    format_data = ", ".join([f"{key}: {value}" for key, value in data.items()])
 
     obj = Courses(
         description=data["description"],
@@ -82,7 +82,7 @@ async def add_link(message: types.Message, state: FSMContext, session: AsyncSess
 
     session.add(obj)
     await session.commit()
-    await message.answer(str(data))
+    await message.answer(format_data, parse_mode=ParseMode.HTML)
     await state.clear()
 
 # Удаление курсов
@@ -106,9 +106,9 @@ async def delete_courses(message: types.Message, state: FSMContext, session: Asy
         courses_id = int(message.text)
         deleted = await m_request.delete_courses(session, courses_id)
         if deleted:
-            await message.answer(f"Курс с ID {courses_id} удален.", reply_markup=kb.admin_panel_menu)
+            await message.answer(f"Курс с ID {courses_id} удален\.", reply_markup=kb.admin_panel_menu)
         else:
-            await message.answer(f"Курс с ID {courses_id} не найден.", reply_markup=kb.admin_courses_menu)
+            await message.answer(f"Курс с ID {courses_id} не найден\.", reply_markup=kb.admin_courses_menu)
 
         await state.clear()
 
@@ -122,14 +122,16 @@ async def courses_info(message: types.Message, session: AsyncSession):
     else:
         response = "Все курсы по Python \n"
         for course in courses:
-            response += f"ID: {course.id}; INFO: {course.description[:15]}... - {course.link}\n"
+            course_description = escape_markdown(course.description)
+            course_link = escape_markdown(course.link)
+            response += f"ID: {course.id}; INFO: {course_description}\.\.\. \- {course_link}\n"
         await message.answer(response)
     
 
 # ==================Materials==================
 
 @admin_router.message(F.text == "Поправить материалы")
-async def edit_python(message: types.Message):
+async def edit_materials(message: types.Message):
     await message.answer("Выбирите команду", reply_markup=kb.admin_materials_menu)
 
 # Добавление материалов
@@ -140,20 +142,21 @@ class AddMaterials(StatesGroup):
 @admin_router.message(StateFilter(None), F.text == "Добавить материалы")
 async def add_materials(message: types.Message, state: FSMContext):
     await message.answer(f"Введите описание", reply_markup=types.ReplyKeyboardRemove())
-    await state.set_state(AddCourses.description)
+    await state.set_state(AddMaterials.description)
 
 
-@admin_router.message(AddCourses.description, F.text)
+@admin_router.message(AddMaterials.description, F.text)
 async def add_description(message: types.Message, state: FSMContext):
     await state.update_data(description=message.text)
     await message.answer("Введите ссылку")
-    await state.set_state(AddCourses.link)
+    await state.set_state(AddMaterials.link)
 
-@admin_router.message(AddCourses.link, F.text)
+@admin_router.message(AddMaterials.link, F.text)
 async def add_link(message: types.Message, state: FSMContext, session: AsyncSession):
     await state.update_data(link=message.text)
     await message.answer(f"Добавлено", reply_markup=kb.admin_panel_menu)
     data = await state.get_data()
+    format_data = ", ".join([f"{key}: {value}" for key, value in data.items()])
 
     obj = Materials(
         description=data["description"],
@@ -162,7 +165,7 @@ async def add_link(message: types.Message, state: FSMContext, session: AsyncSess
 
     session.add(obj)
     await session.commit()
-    await message.answer(str(data))
+    await message.answer(format_data, parse_mode=ParseMode.HTML)
     await state.clear()
 
 
@@ -186,9 +189,9 @@ async def delete_materials(message: types.Message, state: FSMContext, session: A
         materials_id = int(message.text)
         deleted = await m_request.delete_materials(session, materials_id)
         if deleted:
-            await message.answer(f"Материал с ID {materials_id} удален.", reply_markup=kb.admin_panel_menu)
+            await message.answer(f"Материал с ID {materials_id} удален\.", reply_markup=kb.admin_panel_menu)
         else:
-            await message.answer(f"Материал с ID {materials_id} не найден.", reply_markup=kb.admin_materials_menu)
+            await message.answer(f"Материал с ID {materials_id} не найден\.", reply_markup=kb.admin_materials_menu)
         
         await state.clear()
 
@@ -202,13 +205,15 @@ async def materials_info(message: types.Message, session: AsyncSession):
     else:
         response = "Все материалы по Python \n"
         for material in materials:
-            response += f"ID: {material.id}; INFO: {material.description[:15]}... - {material.link}\n"
+            material_description = escape_markdown(material.description)
+            material_link = escape_markdown(material.link)
+            response += f"ID: {material.id}; INFO: {material_description[:15]}\.\.\. \- {material_link}\n"
         await message.answer(response)
 
 # ==================Timesheet==================
 
 @admin_router.message(F.text == "📋 Поправить расписание")
-async def edit_python(message: types.Message):
+async def edit_timesheet(message: types.Message):
     await message.answer("Выбирите команду", reply_markup=kb.admin_timesheet_menu)
 
 
@@ -217,7 +222,8 @@ class AddTimesheet(StatesGroup):
     group = State()
     day = State()
     week = State()
-    time = State()
+    time_start = State()
+    time_end = State()
     cabinet = State()
     subject = State()
     teacher = State()
@@ -226,7 +232,8 @@ class AddTimesheet(StatesGroup):
         'AddTimesheet:group': 'Введите группу заново',
         'AddTimesheet:week': 'Введите тип недели заново',
         'AddTimesheet:day': 'Введите день недели заново',
-        'AddTimesheet:time': 'Введите время заново',
+        'AddTimesheet:time_start': 'Введите время начала заново',
+        'AddTimesheet:time_end': 'Введите время конца заново',
         'AddTimesheet:cabinet': 'Введите кабинет заново',
         'AddTimesheet:subject': 'Введите предмет заново',
         'AddTimesheet:teacher': 'Введите преподавателя заново'
@@ -277,7 +284,7 @@ async def add_week(message: types.Message, state: FSMContext):
 @admin_router.message(AddTimesheet.week, F.text)
 async def add_day(message: types.Message, state: FSMContext):
     if message.text not in ["0", "1"]:
-        await message.answer("Введите корректный тип недели 0 - чет, 1 - нечет")
+        await message.answer("Введите корректный тип недели 0 \- чет, 1 \- нечет")
     else:
         await state.update_data(week=message.text)
         await message.answer(f"Введите день недели")
@@ -285,18 +292,25 @@ async def add_day(message: types.Message, state: FSMContext):
 
 
 @admin_router.message(AddTimesheet.day, F.text)
-async def add_time(message: types.Message, state: FSMContext):
+async def add_time_start(message: types.Message, state: FSMContext):
     if (message.text not in ["1", "2", "3", "4", "5", "6"]):
         await message.answer("Введите корректный день недели")
     else:
         await state.update_data(day=message.text)
-        await message.answer(f"Введите время")
-        await state.set_state(AddTimesheet.time)
+        await message.answer(f"Введите время начала")
+        await state.set_state(AddTimesheet.time_start)
 
 
-@admin_router.message(AddTimesheet.time, F.text)
+@admin_router.message(AddTimesheet.time_start, F.text)
+async def add_time_end(message: types.Message, state: FSMContext):
+    await state.update_data(time_start=message.text)
+    await message.answer(f"Введите время конца")
+    await state.set_state(AddTimesheet.time_end)
+
+
+@admin_router.message(AddTimesheet.time_end, F.text)
 async def add_cabinet(message: types.Message, state: FSMContext):
-    await state.update_data(time=message.text)
+    await state.update_data(time_end=message.text)
     await message.answer(f"Введите кабинет")
     await state.set_state(AddTimesheet.cabinet)
 
@@ -323,13 +337,16 @@ async def add_timesheet(message: types.Message, state: FSMContext, session: Asyn
     await state.update_data(teacher=message.text)
     await message.answer(f"Добавлено", reply_markup=kb.admin_panel_menu)
     data = await state.get_data()
+    format_data = ", ".join([f"{key}: {value}" for key, value in data.items()])
 
-    time_obj = datetime.strptime(data["time"], '%H:%M').time()
+    time_start_obj = datetime.strptime(data["time_start"], '%H:%M').time()
+    time_end_obj = datetime.strptime(data["time_end"], '%H:%M').time()
     obj = Timesheet(
         group=int(data["group"]),
         day=int(data["day"]),
         week=int(data["week"]),
-        time=time_obj,
+        time_start=time_start_obj,
+        time_end=time_end_obj,
         cabinet=int(data["cabinet"]),
         subject=data["subject"],
         teacher=data["teacher"],
@@ -337,8 +354,9 @@ async def add_timesheet(message: types.Message, state: FSMContext, session: Asyn
 
     session.add(obj)
     await session.commit()
-    await message.answer(str(data))
+    await message.answer(format_data, parse_mode=ParseMode.HTML)
     await state.clear()
+
 
 class DeleteTimesheet(StatesGroup):
     id = State()
@@ -359,9 +377,9 @@ async def delete_timesheet(message: types.Message, state: FSMContext, session: A
         timesheet_id = int(message.text)
         deleted = await tm_request.delete_timesheet(session, timesheet_id)
         if deleted:
-            await message.answer(f"Расписание с ID {timesheet_id} удалено.", reply_markup=kb.admin_panel_menu)
+            await message.answer(f"Расписание с ID {timesheet_id} удалено\.", reply_markup=kb.admin_panel_menu)
         else:
-            await message.answer(f"Расписание с ID {timesheet_id} не найдено.", reply_markup=kb.admin_timesheet_menu)
+            await message.answer(f"Расписание с ID {timesheet_id} не найдено\.", reply_markup=kb.admin_timesheet_menu)
         await state.clear()
 
 # Получение всей информации
@@ -372,14 +390,16 @@ async def timesheet_info(message: types.Message, session: AsyncSession):
     if not timesheets:
         await message.answer("Расписание еще не добавлено")
     else:
+        await message.answer("Все Расписание")
         weekly_schedule = {}
 
         for timesheet in timesheets:
             if timesheet.day not in weekly_schedule:
                 weekly_schedule[timesheet.day] = []
-            weekly_schedule[timesheet.day].append(f"ID: {timesheet.id}; INFO {timesheet.group}, {timesheet.week}, {timesheet.time}, {timesheet.cabinet}, {timesheet.subject}, {timesheet.teacher}")
+            timesheet_subject = escape_markdown(timesheet.subject)
+            timesheet_teacher = escape_markdown(timesheet.teacher)
+            weekly_schedule[timesheet.day].append(f"ID: {timesheet.id}; INFO {timesheet.group}, {timesheet.week}, {timesheet.time_start}, {timesheet.time_end}, {timesheet.cabinet}, {timesheet_subject}, {timesheet_teacher}")
         
         for day, schedule in weekly_schedule.items():
-            await message.answer(f"--- {day} ---\n" + "\n".join(schedule))
+            await message.answer(f"\-\-\- {day} \-\-\-\n" + "\n".join(schedule))
         
-        await message.answer("Все Расписание")
