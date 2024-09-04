@@ -169,5 +169,3 @@ async def show_python_materials(message: Message, session: AsyncSession):
         await message.answer(response)
 
 
-
-

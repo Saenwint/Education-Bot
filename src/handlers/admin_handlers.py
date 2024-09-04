@@ -106,7 +106,7 @@ async def delete_courses(message: types.Message, state: FSMContext, session: Asy
         courses_id = int(message.text)
         deleted = await m_request.delete_courses(session, courses_id)
         if deleted:
-            await message.answer(f"Курс с ID {courses_id} удален\.", reply_markup=kb.admin_panel_menu)
+            await message.answer(escape_markdown(f"Курс с ID {courses_id} удален."), reply_markup=kb.admin_panel_menu)
         else:
             await message.answer(escape_markdown(f"Курс с ID {courses_id} не найден."), reply_markup=kb.admin_courses_menu)
 
@@ -310,9 +310,22 @@ async def add_time_end(message: types.Message, state: FSMContext):
 
 @admin_router.message(AddTimesheet.time_end, F.text)
 async def add_cabinet(message: types.Message, state: FSMContext):
-    await state.update_data(time_end=message.text)
-    await message.answer(f"Введите кабинет")
-    await state.set_state(AddTimesheet.cabinet)
+    data = await state.get_data()
+    time_start_str = data["time_start"]
+    time_end_str = message.text
+
+    time_format = "%H:%M"
+
+    time_start = datetime.strptime(time_start_str, time_format)
+    time_end = datetime.strptime(time_end_str, time_format)
+    if time_start >= time_end:
+        await state.update_data(time_start=None)
+        await message.answer(f"Время начала не может быть больше времени конца\nВведите время начало заново")
+        await state.set_state(AddTimesheet.time_start)
+    else:
+        await state.update_data(time_end=message.text)
+        await message.answer(f"Введите кабинет")
+        await state.set_state(AddTimesheet.cabinet)
 
 
 @admin_router.message(AddTimesheet.cabinet, F.text)
