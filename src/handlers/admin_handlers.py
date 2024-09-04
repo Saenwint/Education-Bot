@@ -108,7 +108,7 @@ async def delete_courses(message: types.Message, state: FSMContext, session: Asy
         if deleted:
             await message.answer(f"Курс с ID {courses_id} удален\.", reply_markup=kb.admin_panel_menu)
         else:
-            await message.answer(f"Курс с ID {courses_id} не найден\.", reply_markup=kb.admin_courses_menu)
+            await message.answer(escape_markdown(f"Курс с ID {courses_id} не найден."), reply_markup=kb.admin_courses_menu)
 
         await state.clear()
 
@@ -122,9 +122,9 @@ async def courses_info(message: types.Message, session: AsyncSession):
     else:
         response = "Все курсы по Python \n"
         for course in courses:
-            course_description = escape_markdown(course.description)
-            course_link = escape_markdown(course.link)
-            response += f"ID: {course.id}; INFO: {course_description}\.\.\. \- {course_link}\n"
+            #course_description = escape_markdown(course.description)
+            #course_link = escape_markdown(course.link)
+            response += escape_markdown(f"ID: {course.id}; INFO: {course.description}... - {course.link}\n")
         await message.answer(response)
     
 
@@ -189,9 +189,9 @@ async def delete_materials(message: types.Message, state: FSMContext, session: A
         materials_id = int(message.text)
         deleted = await m_request.delete_materials(session, materials_id)
         if deleted:
-            await message.answer(f"Материал с ID {materials_id} удален\.", reply_markup=kb.admin_panel_menu)
+            await message.answer(escape_markdown(f"Материал с ID {materials_id} удален."), reply_markup=kb.admin_panel_menu)
         else:
-            await message.answer(f"Материал с ID {materials_id} не найден\.", reply_markup=kb.admin_materials_menu)
+            await message.answer(escape_markdown(f"Материал с ID {materials_id} не найден."), reply_markup=kb.admin_materials_menu)
         
         await state.clear()
 
@@ -205,9 +205,9 @@ async def materials_info(message: types.Message, session: AsyncSession):
     else:
         response = "Все материалы по Python \n"
         for material in materials:
-            material_description = escape_markdown(material.description)
-            material_link = escape_markdown(material.link)
-            response += f"ID: {material.id}; INFO: {material_description[:15]}\.\.\. \- {material_link}\n"
+            #material_description = escape_markdown(material.description)
+            #material_link = escape_markdown(material.link)
+            response += escape_markdown(f"ID: {material.id}; INFO: {material.description[:15]}... - {material.link}\n")
         await message.answer(response)
 
 # ==================Timesheet==================
@@ -284,7 +284,7 @@ async def add_week(message: types.Message, state: FSMContext):
 @admin_router.message(AddTimesheet.week, F.text)
 async def add_day(message: types.Message, state: FSMContext):
     if message.text not in ["0", "1"]:
-        await message.answer("Введите корректный тип недели 0 \- чет, 1 \- нечет")
+        await message.answer(escape_markdown("Введите корректный тип недели 0 - чет, 1 - нечет"))
     else:
         await state.update_data(week=message.text)
         await message.answer(f"Введите день недели")
@@ -377,9 +377,9 @@ async def delete_timesheet(message: types.Message, state: FSMContext, session: A
         timesheet_id = int(message.text)
         deleted = await tm_request.delete_timesheet(session, timesheet_id)
         if deleted:
-            await message.answer(f"Расписание с ID {timesheet_id} удалено\.", reply_markup=kb.admin_panel_menu)
+            await message.answer(escape_markdown(f"Расписание с ID {timesheet_id} удалено."), reply_markup=kb.admin_panel_menu)
         else:
-            await message.answer(f"Расписание с ID {timesheet_id} не найдено\.", reply_markup=kb.admin_timesheet_menu)
+            await message.answer(escape_markdown(f"Расписание с ID {timesheet_id} не найдено."), reply_markup=kb.admin_timesheet_menu)
         await state.clear()
 
 # Получение всей информации
@@ -396,10 +396,10 @@ async def timesheet_info(message: types.Message, session: AsyncSession):
         for timesheet in timesheets:
             if timesheet.day not in weekly_schedule:
                 weekly_schedule[timesheet.day] = []
-            timesheet_subject = escape_markdown(timesheet.subject)
-            timesheet_teacher = escape_markdown(timesheet.teacher)
-            weekly_schedule[timesheet.day].append(f"ID: {timesheet.id}; INFO {timesheet.group}, {timesheet.week}, {timesheet.time_start}, {timesheet.time_end}, {timesheet.cabinet}, {timesheet_subject}, {timesheet_teacher}")
+            #timesheet_subject = escape_markdown(timesheet.subject)
+            #timesheet_teacher = escape_markdown(timesheet.teacher)
+            weekly_schedule[timesheet.day].append(f"ID: {timesheet.id}; INFO: {timesheet.group}, {timesheet.week}, {timesheet.time_start}, {timesheet.time_end}, {timesheet.cabinet}, {timesheet.subject}, {timesheet.teacher}")
         
         for day, schedule in weekly_schedule.items():
-            await message.answer(f"\-\-\- {day} \-\-\-\n" + "\n".join(schedule))
+            await message.answer(escape_markdown(f"--- {day} ---\n" + "\n".join(schedule)))
         
