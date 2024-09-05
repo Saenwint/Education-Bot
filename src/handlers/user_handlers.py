@@ -36,6 +36,57 @@ async def go_back(message: Message):
 async def show_timesheet(message: Message):
     await message.answer("Выберете группу", reply_markup=kb.timesheet_menu)
 
+@user_router.message(F.text == "1373")
+async def show_timesheet_1373(message: Message):
+    await message.answer("Выберете неделю", reply_markup=kb.timesheet_1373_menu)
+
+
+@user_router.message(F.text == "Четная 1373")
+async def show_even_timesheet_1373(message: Message, session: AsyncSession):
+    timesheets = await tm_request.get_even_timesheet_1373(session)
+
+    if not timesheets:
+        await message.answer("Расписание еще не добавлено 😔")
+    else:
+        weekly_schedule = {}
+
+        time_format = "%H:%M"
+
+        await message.answer("Расписание четной недели 1373")
+
+        for timesheet in timesheets:
+            if timesheet.day not in weekly_schedule:
+                weekly_schedule[timesheet.day] = []
+            weekly_schedule[timesheet.day].append(f"<pre>Время: {timesheet.time_start.strftime(time_format)} - {timesheet.time_end.strftime(time_format)}\nПредмет: {timesheet.subject} Кабинет: {timesheet.cabinet}\nПреподаватель: {timesheet.teacher}</pre>")
+        
+        for day, schedule in weekly_schedule.items():
+            #full = "<pre>" + "\n".join(schedule) +"</pre>"
+            await message.answer((f"<b>{day}</b>\n" + "\n".join(schedule)))
+        
+
+
+@user_router.message(F.text == "Нечетная 1373")
+async def show_noteven_timesheet_1373(message: Message, session: AsyncSession):
+    timesheets = await tm_request.get_noteven_timesheet_1373(session)
+    
+    if not timesheets:
+        await message.answer("Расписание еще не добавлено 😔")
+    else:
+        weekly_schedule = {}
+
+        time_format = "%H:%M"
+
+        await message.answer("Расписание нечетной недели 1373")
+
+        for timesheet in timesheets:
+            if timesheet.day not in weekly_schedule:
+                weekly_schedule[timesheet.day] = []
+            weekly_schedule[timesheet.day].append(f"<pre>Время: {timesheet.time_start.strftime(time_format)} - {timesheet.time_end.strftime(time_format)}\nПредмет: {timesheet.subject} Кабинет: {timesheet.cabinet}\nПреподаватель: {timesheet.teacher}</pre>")
+        
+        for day, schedule in weekly_schedule.items():
+            #full = "<pre>" + "\n".join(schedule) +"</pre>"
+            await message.answer((f"<b>{day}</b>\n" + "\n".join(schedule)))
+
 
 @user_router.message(F.text == "1375")
 async def show_timesheet_1375(message: Message):
@@ -51,15 +102,19 @@ async def show_even_timesheet_1375(message: Message, session: AsyncSession):
     else:
         weekly_schedule = {}
 
+        time_format = "%H:%M"
+
+        await message.answer("Расписание четной недели 1375")
+
         for timesheet in timesheets:
             if timesheet.day not in weekly_schedule:
                 weekly_schedule[timesheet.day] = []
-            weekly_schedule[timesheet.day].append(f"<b>{timesheet.time_start} - {timesheet.time_end}</b>\n<b>{timesheet.subject}</b> <u>{timesheet.teacher}</u>\n{timesheet.cabinet}")
+            weekly_schedule[timesheet.day].append(f"<pre>Время: {timesheet.time_start.strftime(time_format)} - {timesheet.time_end.strftime(time_format)}\nПредмет: {timesheet.subject} Кабинет: {timesheet.cabinet}\nПреподаватель: {timesheet.teacher}</pre>")
         
         for day, schedule in weekly_schedule.items():
-            await message.answer((f"--- {day} ---\n" + "\n".join(schedule)))
+            #full = "<pre>" + "\n".join(schedule) +"</pre>"
+            await message.answer((f"<b>{day}</b>\n" + "\n".join(schedule)))
         
-        await message.answer("Расписание четной недели 1375")
 
 
 @user_router.message(F.text == "Нечетная 1375")
@@ -71,15 +126,18 @@ async def show_noteven_timesheet_1375(message: Message, session: AsyncSession):
     else:
         weekly_schedule = {}
 
+        time_format = "%H:%M"
+
+        await message.answer("Расписание нечетной недели 1375")
+
         for timesheet in timesheets:
             if timesheet.day not in weekly_schedule:
                 weekly_schedule[timesheet.day] = []
-            weekly_schedule[timesheet.day].append(f"<b>{timesheet.time_start} - {timesheet.time_end}</b>\n<b>{timesheet.subject}</b> <u>{timesheet.teacher}</u>\n{timesheet.cabinet}")
+            weekly_schedule[timesheet.day].append(f"<pre>Время: {timesheet.time_start.strftime(time_format)} - {timesheet.time_end.strftime(time_format)}\nПредмет: {timesheet.subject} Кабинет: {timesheet.cabinet}\nПреподаватель: {timesheet.teacher}</pre>")
         
         for day, schedule in weekly_schedule.items():
-            await message.answer((f"--- {day} ---\n" + "\n".join(schedule)))
-        
-        await message.answer("Расписание нечетной недели 1375")
+            #full = "<pre>" + "\n".join(schedule) +"</pre>"
+            await message.answer((f"<b>{day}</b>\n" + "\n".join(schedule)))
 
 
 @user_router.message(F.text == "1376")
@@ -96,15 +154,18 @@ async def show_even_timesheet_1376(message: Message, session: AsyncSession):
     else:
         weekly_schedule = {}
 
+        time_format = "%H:%M"
+
+        await message.answer("Расписание четной недели 1376")
+
         for timesheet in timesheets:
             if timesheet.day not in weekly_schedule:
                 weekly_schedule[timesheet.day] = []
-            weekly_schedule[timesheet.day].append(f"<b>{timesheet.time_start} - {timesheet.time_end}</b>\n<b>{timesheet.subject}</b> <u>{timesheet.teacher}</u>\n{timesheet.cabinet}")
+            weekly_schedule[timesheet.day].append(f"<pre>Время: {timesheet.time_start.strftime(time_format)} - {timesheet.time_end.strftime(time_format)}\nПредмет: {timesheet.subject} Кабинет: {timesheet.cabinet}\nПреподаватель: {timesheet.teacher}</pre>")
         
         for day, schedule in weekly_schedule.items():
-            await message.answer((f"--- {day} ---\n" + "\n".join(schedule)))
-        
-        await message.answer("Расписание четной недели 1376")
+            #full = "<pre>" + "\n".join(schedule) +"</pre>"
+            await message.answer((f"<b>{day}</b>\n" + "\n".join(schedule)))
 
 
 @user_router.message(F.text == "Нечетная 1376")
@@ -116,15 +177,18 @@ async def show_noteven_timesheet_1376(message: Message, session: AsyncSession):
     else:       
         weekly_schedule = {}
 
+        time_format = "%H:%M"
+
+        await message.answer("Расписание нечетной недели 1376")
+
         for timesheet in timesheets:
             if timesheet.day not in weekly_schedule:
                 weekly_schedule[timesheet.day] = []
-            weekly_schedule[timesheet.day].append(f"<b>{timesheet.time_start} - {timesheet.time_end}</b>\n<b>{timesheet.subject}</b> <u>{timesheet.teacher}</u>\n{timesheet.cabinet}")
+            weekly_schedule[timesheet.day].append(f"<pre>Время: {timesheet.time_start.strftime(time_format)} - {timesheet.time_end.strftime(time_format)}\nПредмет: {timesheet.subject} Кабинет: {timesheet.cabinet}\nПреподаватель: {timesheet.teacher}</pre>")
         
         for day, schedule in weekly_schedule.items():
-            await message.answer((f"--- {day} ---\n" + "\n".join(schedule)))
-        
-        await message.answer("Расписание нечетной недели 1376")
+            #full = "<pre>" + "\n".join(schedule) +"</pre>"
+            await message.answer((f"<b>{day}</b>\n" + "\n".join(schedule)))
 
 # ==================Notes==================
 
@@ -150,7 +214,7 @@ async def show_python_courses(message: Message, session: AsyncSession):
         await message.answer("Все курсы по Python")
         response = ""
         for course in courses:
-            response += f"{course.description} - {course.link}\n"
+            response += f"<a href='{course.link}'>{course.description}</a>\n"
         await message.answer(response)
 
 # ==================Materials==================
@@ -165,7 +229,7 @@ async def show_python_materials(message: Message, session: AsyncSession):
         await message.answer("Все материалы по Python")
         response = ""
         for material in materials:
-            response += f"{material.description} - {material.link}\n"
+            response += f"<a href='{material.link}'>{material.description}</a>\n"
         await message.answer(response)
 
 

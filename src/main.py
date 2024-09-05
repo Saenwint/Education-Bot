@@ -37,7 +37,6 @@ async def on_startup(bot):
 
 async def on_shutdown(bot):
     print('shutdown bot')
-    await drop_db()
 
 
 @dp.message(F.text == "id")

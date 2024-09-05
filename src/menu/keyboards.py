@@ -7,7 +7,7 @@ start_menu = ReplyKeyboardMarkup(
             KeyboardButton(text="🐍 Python")
         ],
         [
-            KeyboardButton(text="🗂 Заметки")
+            #KeyboardButton(text="🗂 Заметки")
         ]
     ],
     resize_keyboard=True,
@@ -20,6 +20,22 @@ timesheet_menu = ReplyKeyboardMarkup(
         [
             KeyboardButton(text="1375"),
             KeyboardButton(text="1376")
+        ],
+        [
+            KeyboardButton(text="1373"),
+            KeyboardButton(text="⬅️ Назад")
+        ]
+    ],
+    resize_keyboard=True,
+    one_time_keyboard=False,
+    input_field_placeholder="📋 Расписание"
+)
+
+timesheet_1373_menu = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text="Четная 1373"),
+            KeyboardButton(text="Нечетная 1373")
         ],
         [
             KeyboardButton(text="⬅️ Назад")
@@ -82,7 +98,7 @@ admin_main_menu = ReplyKeyboardMarkup(
             KeyboardButton(text="🐍 Python")
         ],
         [
-            KeyboardButton(text="🗂 Заметки"),
+            #KeyboardButton(text="🗂 Заметки"),
             KeyboardButton(text="💻 Admin панель")
         ]
     ],

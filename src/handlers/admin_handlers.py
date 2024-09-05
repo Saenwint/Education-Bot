@@ -6,7 +6,6 @@ from aiogram.fsm.context import FSMContext
 from materials.models import Courses, Materials
 from timesheet.models import Timesheet
 from sqlalchemy.ext.asyncio import AsyncSession
-from aiogram.enums import ParseMode
 
 from filters.chat_types import IsAdmin
 from config import config
@@ -272,7 +271,7 @@ async def get_back_handler(message: types.Message, state: FSMContext):
 
 @admin_router.message(AddTimesheet.group, F.text)
 async def add_week(message: types.Message, state: FSMContext):
-    if message.text not in ["1375", "1376"]:
+    if message.text not in ["1373", "1375", "1376"]:
         await message.answer(f"❗️Введите корректный номер группы")
     else:
         await state.update_data(group=message.text)
