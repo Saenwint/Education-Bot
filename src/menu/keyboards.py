@@ -63,8 +63,8 @@ timesheet_1376_menu = ReplyKeyboardMarkup(
 py_menu = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text="Курсы"),
-            KeyboardButton(text="Материалы")
+            KeyboardButton(text="🎓 Курсы"),
+            KeyboardButton(text="📚 Материалы")
         ],
         [
             KeyboardButton(text="⬅️ Назад")
@@ -83,7 +83,7 @@ admin_main_menu = ReplyKeyboardMarkup(
         ],
         [
             KeyboardButton(text="🗂 Заметки"),
-            KeyboardButton(text="Admin панель")
+            KeyboardButton(text="💻 Admin панель")
         ]
     ],
     resize_keyboard=True,
@@ -128,8 +128,8 @@ admin_timesheet_menu = ReplyKeyboardMarkup(
 admin_py_menu = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text="Поправить курсы"),
-            KeyboardButton(text="Поправить материалы")
+            KeyboardButton(text="🎓 Поправить курсы"),
+            KeyboardButton(text="📚 Поправить материалы")
         ],
         [
             KeyboardButton(text="⬅️ Go back")

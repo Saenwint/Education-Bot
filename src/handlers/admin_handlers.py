@@ -14,7 +14,6 @@ import menu.keyboards as kb
 import user.requests as user_request
 import timesheet.requests as tm_request
 import materials.requests as m_request
-from components.escape_markdown import escape_markdown
 
 admin_router = Router()
 admin_router.message.filter(IsAdmin())
@@ -22,15 +21,15 @@ admin_router.message.filter(IsAdmin())
 # Стартовая команда(добавить меню для нее)
 @admin_router.message(CommandStart())
 async def start_admin_cmd(message: types.Message):
-    await user_request.set_user(message.from_user.id, message.from_user.username)
+    await user_request.set_user(str(message.from_user.id), message.from_user.username)
 
     if message.from_user.id == config.ADMIN:
-        await message.answer("Добро пожаловать, создатель", reply_markup=kb.admin_main_menu)
+        await message.answer("Добро пожаловать, создатель 🥳", reply_markup=kb.admin_main_menu)
     else:
-        await message.answer("Добро пожаловать", reply_markup=kb.start_menu)
+        await message.answer("Добро пожаловать 🤓", reply_markup=kb.start_menu)
     
 # Панель админа
-@admin_router.message(F.text == "Admin панель")
+@admin_router.message(F.text == "💻 Admin панель")
 async def get_admin_panel(message: types.Message):
     await message.answer("Вы вошли в админ панель", reply_markup=kb.admin_panel_menu)
 
@@ -47,7 +46,7 @@ async def edit_python(message: types.Message):
 
 # ==================Courses==================
 
-@admin_router.message(F.text == "Поправить курсы")
+@admin_router.message(F.text == "🎓 Поправить курсы")
 async def edit_courses(message: types.Message):
     await message.answer("Выбирите команду", reply_markup=kb.admin_courses_menu)
 
@@ -65,13 +64,13 @@ async def add_courses(message: types.Message, state: FSMContext):
 @admin_router.message(AddCourses.description, F.text)
 async def add_description(message: types.Message, state: FSMContext):
     await state.update_data(description=message.text)
-    await message.answer("Введите ссылку")
+    await message.answer(f"Введите ссылку")
     await state.set_state(AddCourses.link)
 
 @admin_router.message(AddCourses.link, F.text)
 async def add_link(message: types.Message, state: FSMContext, session: AsyncSession):
     await state.update_data(link=message.text)
-    await message.answer(f"Добавлено", reply_markup=kb.admin_panel_menu)
+    await message.answer(f"✅ Добавлено", reply_markup=kb.admin_panel_menu)
     data = await state.get_data()
     format_data = ", ".join([f"{key}: {value}" for key, value in data.items()])
 
@@ -82,7 +81,7 @@ async def add_link(message: types.Message, state: FSMContext, session: AsyncSess
 
     session.add(obj)
     await session.commit()
-    await message.answer(format_data, parse_mode=ParseMode.HTML)
+    await message.answer(format_data)
     await state.clear()
 
 # Удаление курсов
@@ -101,14 +100,14 @@ async def delete_courses_by_id(message: types.Message, state: FSMContext):
 async def delete_courses(message: types.Message, state: FSMContext, session: AsyncSession):
     
     if message.text.isnumeric() == False:
-        await message.answer(f"Введите корректный ID")
+        await message.answer(f"❗️Введите корректный ID")
     else:
         courses_id = int(message.text)
         deleted = await m_request.delete_courses(session, courses_id)
         if deleted:
-            await message.answer(escape_markdown(f"Курс с ID {courses_id} удален."), reply_markup=kb.admin_panel_menu)
+            await message.answer(f"✅ Курс с ID {courses_id} удален.", reply_markup=kb.admin_panel_menu)
         else:
-            await message.answer(escape_markdown(f"Курс с ID {courses_id} не найден."), reply_markup=kb.admin_courses_menu)
+            await message.answer(f"❌ Курс с ID {courses_id} не найден.", reply_markup=kb.admin_courses_menu)
 
         await state.clear()
 
@@ -118,19 +117,18 @@ async def courses_info(message: types.Message, session: AsyncSession):
     courses = await m_request.get_courses(session)
 
     if not courses:
-        await message.answer("Курсы еще не добавлены")
+        await message.answer("Курсы еще не добавлены 😔")
     else:
-        response = "Все курсы по Python \n"
+        await message.answer("Все курсы по Python")
+        response = ""
         for course in courses:
-            #course_description = escape_markdown(course.description)
-            #course_link = escape_markdown(course.link)
-            response += escape_markdown(f"ID: {course.id}; INFO: {course.description}... - {course.link}\n")
+            response += f"ID: {course.id}; INFO: {course.description[:16]}... - {course.link}\n"
         await message.answer(response)
     
 
 # ==================Materials==================
 
-@admin_router.message(F.text == "Поправить материалы")
+@admin_router.message(F.text == "📚 Поправить материалы")
 async def edit_materials(message: types.Message):
     await message.answer("Выбирите команду", reply_markup=kb.admin_materials_menu)
 
@@ -139,6 +137,7 @@ class AddMaterials(StatesGroup):
     description = State()
     link = State()
     
+
 @admin_router.message(StateFilter(None), F.text == "Добавить материалы")
 async def add_materials(message: types.Message, state: FSMContext):
     await message.answer(f"Введите описание", reply_markup=types.ReplyKeyboardRemove())
@@ -151,10 +150,11 @@ async def add_description(message: types.Message, state: FSMContext):
     await message.answer("Введите ссылку")
     await state.set_state(AddMaterials.link)
 
+
 @admin_router.message(AddMaterials.link, F.text)
 async def add_link(message: types.Message, state: FSMContext, session: AsyncSession):
     await state.update_data(link=message.text)
-    await message.answer(f"Добавлено", reply_markup=kb.admin_panel_menu)
+    await message.answer(f"✅ Добавлено", reply_markup=kb.admin_panel_menu)
     data = await state.get_data()
     format_data = ", ".join([f"{key}: {value}" for key, value in data.items()])
 
@@ -165,7 +165,7 @@ async def add_link(message: types.Message, state: FSMContext, session: AsyncSess
 
     session.add(obj)
     await session.commit()
-    await message.answer(format_data, parse_mode=ParseMode.HTML)
+    await message.answer(format_data)
     await state.clear()
 
 
@@ -184,14 +184,14 @@ async def delete_materials_by_id(message: types.Message, state: FSMContext):
 @admin_router.message(DeleteMaterials.id, F.text)
 async def delete_materials(message: types.Message, state: FSMContext, session: AsyncSession):
     if message.text.isnumeric() == False:
-        await message.answer(f"Введите корректный ID")
+        await message.answer(f"❗️Введите корректный ID")
     else:
         materials_id = int(message.text)
         deleted = await m_request.delete_materials(session, materials_id)
         if deleted:
-            await message.answer(escape_markdown(f"Материал с ID {materials_id} удален."), reply_markup=kb.admin_panel_menu)
+            await message.answer(f"✅ Материал с ID {materials_id} удален.", reply_markup=kb.admin_panel_menu)
         else:
-            await message.answer(escape_markdown(f"Материал с ID {materials_id} не найден."), reply_markup=kb.admin_materials_menu)
+            await message.answer(f"❌ Материал с ID {materials_id} не найден.", reply_markup=kb.admin_materials_menu)
         
         await state.clear()
 
@@ -201,16 +201,15 @@ async def materials_info(message: types.Message, session: AsyncSession):
     materials = await m_request.get_materials(session)
 
     if not materials:
-        await message.answer("Материалы еще не добавлены")
+        await message.answer("Материалы еще не добавлены 😔")
     else:
-        response = "Все материалы по Python \n"
+        await message.answer("Все материалы по Python")
+        response = ""
         for material in materials:
-            #material_description = escape_markdown(material.description)
-            #material_link = escape_markdown(material.link)
-            response += escape_markdown(f"ID: {material.id}; INFO: {material.description[:15]}... - {material.link}\n")
+            response += f"ID: {material.id}; INFO: {material.description[:16]}... - {material.link}\n"
         await message.answer(response)
 
-# ==================Timesheet==================
+# ==================Timesheet==================escape_markdown
 
 @admin_router.message(F.text == "📋 Поправить расписание")
 async def edit_timesheet(message: types.Message):
@@ -274,7 +273,7 @@ async def get_back_handler(message: types.Message, state: FSMContext):
 @admin_router.message(AddTimesheet.group, F.text)
 async def add_week(message: types.Message, state: FSMContext):
     if message.text not in ["1375", "1376"]:
-        await message.answer(f"Введите корректный номер группы")
+        await message.answer(f"❗️Введите корректный номер группы")
     else:
         await state.update_data(group=message.text)
         await message.answer("Введите тип недели")
@@ -284,7 +283,7 @@ async def add_week(message: types.Message, state: FSMContext):
 @admin_router.message(AddTimesheet.week, F.text)
 async def add_day(message: types.Message, state: FSMContext):
     if message.text not in ["0", "1"]:
-        await message.answer(escape_markdown("Введите корректный тип недели 0 - чет, 1 - нечет"))
+        await message.answer("❗️Введите корректный тип недели 0 - чет, 1 - нечет")
     else:
         await state.update_data(week=message.text)
         await message.answer(f"Введите день недели")
@@ -294,7 +293,7 @@ async def add_day(message: types.Message, state: FSMContext):
 @admin_router.message(AddTimesheet.day, F.text)
 async def add_time_start(message: types.Message, state: FSMContext):
     if (message.text not in ["1", "2", "3", "4", "5", "6"]):
-        await message.answer("Введите корректный день недели")
+        await message.answer(f"❗️Введите корректный день недели")
     else:
         await state.update_data(day=message.text)
         await message.answer(f"Введите время начала")
@@ -318,9 +317,11 @@ async def add_cabinet(message: types.Message, state: FSMContext):
 
     time_start = datetime.strptime(time_start_str, time_format)
     time_end = datetime.strptime(time_end_str, time_format)
+    
     if time_start >= time_end:
         await state.update_data(time_start=None)
-        await message.answer(f"Время начала не может быть больше времени конца\nВведите время начало заново")
+        await message.answer(f"❗️Время начала не может быть больше времени конца")
+        await message.answer(f"Введите время начала заново")
         await state.set_state(AddTimesheet.time_start)
     else:
         await state.update_data(time_end=message.text)
@@ -331,7 +332,7 @@ async def add_cabinet(message: types.Message, state: FSMContext):
 @admin_router.message(AddTimesheet.cabinet, F.text)
 async def add_subject(message: types.Message, state: FSMContext):
     if message.text.isnumeric() == False:
-        await message.answer(f"Введите корректный номер кабинета")
+        await message.answer(f"❗️Введите корректный номер кабинета")
     else:
         await state.update_data(cabinet=message.text)
         await message.answer(f"Введите предмет")
@@ -348,7 +349,7 @@ async def add_teacher(message: types.Message, state: FSMContext):
 @admin_router.message(AddTimesheet.teacher, F.text)
 async def add_timesheet(message: types.Message, state: FSMContext, session: AsyncSession):
     await state.update_data(teacher=message.text)
-    await message.answer(f"Добавлено", reply_markup=kb.admin_panel_menu)
+    await message.answer(f"✅ Добавлено", reply_markup=kb.admin_panel_menu)
     data = await state.get_data()
     format_data = ", ".join([f"{key}: {value}" for key, value in data.items()])
 
@@ -367,7 +368,7 @@ async def add_timesheet(message: types.Message, state: FSMContext, session: Asyn
 
     session.add(obj)
     await session.commit()
-    await message.answer(format_data, parse_mode=ParseMode.HTML)
+    await message.answer(format_data)
     await state.clear()
 
 
@@ -385,14 +386,14 @@ async def delete_timesheet_by_id(message: types.Message, state: FSMContext):
 @admin_router.message(DeleteTimesheet.id, F.text)
 async def delete_timesheet(message: types.Message, state: FSMContext, session: AsyncSession):
     if message.text.isnumeric() == False:
-        await message.answer(f"Введите корректный ID")
+        await message.answer(f"❗️Введите корректный ID")
     else:
         timesheet_id = int(message.text)
         deleted = await tm_request.delete_timesheet(session, timesheet_id)
         if deleted:
-            await message.answer(escape_markdown(f"Расписание с ID {timesheet_id} удалено."), reply_markup=kb.admin_panel_menu)
+            await message.answer(f"✅ Расписание с ID {timesheet_id} удалено.", reply_markup=kb.admin_panel_menu)
         else:
-            await message.answer(escape_markdown(f"Расписание с ID {timesheet_id} не найдено."), reply_markup=kb.admin_timesheet_menu)
+            await message.answer(f"❌ Расписание с ID {timesheet_id} не найдено.", reply_markup=kb.admin_timesheet_menu)
         await state.clear()
 
 # Получение всей информации
@@ -401,18 +402,16 @@ async def timesheet_info(message: types.Message, session: AsyncSession):
     timesheets = await tm_request.get_all_info(session)
 
     if not timesheets:
-        await message.answer("Расписание еще не добавлено")
+        await message.answer("Расписание еще не добавлено 😔")
     else:
-        await message.answer("Все Расписание")
+        await message.answer("Всё Расписание")
         weekly_schedule = {}
 
         for timesheet in timesheets:
             if timesheet.day not in weekly_schedule:
                 weekly_schedule[timesheet.day] = []
-            #timesheet_subject = escape_markdown(timesheet.subject)
-            #timesheet_teacher = escape_markdown(timesheet.teacher)
             weekly_schedule[timesheet.day].append(f"ID: {timesheet.id}; INFO: {timesheet.group}, {timesheet.week}, {timesheet.time_start}, {timesheet.time_end}, {timesheet.cabinet}, {timesheet.subject}, {timesheet.teacher}")
         
         for day, schedule in weekly_schedule.items():
-            await message.answer(escape_markdown(f"--- {day} ---\n" + "\n".join(schedule)))
+            await message.answer(f"--- {day} ---\n" + "\n".join(schedule))
         

@@ -6,9 +6,9 @@ from sqlalchemy import select
 
 async def set_user(tg_id, username):
     async with session_maker() as session:
-        user = await session.scalar(select(User).where(User.id == tg_id, User.username == username))
+        user = await session.scalar(select(User).where(User.tg_id == tg_id, User.username == username))
 
         if not user:
-            session.add(User(id=tg_id, username=username))
+            session.add(User(tg_id=tg_id, username=username))
             await session.commit()
 
