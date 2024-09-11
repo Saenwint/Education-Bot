@@ -281,7 +281,7 @@ async def add_week(message: types.Message, state: FSMContext):
 
 @admin_router.message(AddTimesheet.week, F.text)
 async def add_day(message: types.Message, state: FSMContext):
-    if message.text not in ["0", "1"]:
+    if message.text not in ["1", "2"]:
         await message.answer("❗️Введите корректный тип недели 0 - чет, 1 - нечет")
     else:
         await state.update_data(week=message.text)
@@ -348,7 +348,7 @@ async def add_teacher(message: types.Message, state: FSMContext):
 @admin_router.message(AddTimesheet.teacher, F.text)
 async def add_timesheet(message: types.Message, state: FSMContext, session: AsyncSession):
     await state.update_data(teacher=message.text)
-    await message.answer(f"✅ Добавлено", reply_markup=kb.admin_panel_menu)
+    await message.answer(f"✅ Добавлено", reply_markup=kb.admin_timesheet_menu)
     data = await state.get_data()
     format_data = ", ".join([f"{key}: {value}" for key, value in data.items()])
 
@@ -414,3 +414,5 @@ async def timesheet_info(message: types.Message, session: AsyncSession):
         for day, schedule in weekly_schedule.items():
             await message.answer(f"--- {day} ---\n" + "\n".join(schedule))
         
+
+# ==================Рассылка================

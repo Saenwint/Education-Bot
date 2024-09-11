@@ -13,8 +13,9 @@ day_to_weekday = {
     6: "Суббота",
 }
 
-async def get_even_timesheet_1375(session: AsyncSession):
-    query = select(Timesheet).where(Timesheet.group == 1375, Timesheet.week == 0).order_by(Timesheet.day)
+
+async def get_timesheet_1373(session: AsyncSession, week:int):
+    query = select(Timesheet).where(Timesheet.group == 1373, Timesheet.week == week).order_by(Timesheet.day)
     result = await session.execute(query)
     timesheets = result.scalars().all()
 
@@ -24,8 +25,8 @@ async def get_even_timesheet_1375(session: AsyncSession):
     return timesheets
 
 
-async def get_noteven_timesheet_1375(session: AsyncSession):
-    query = select(Timesheet).where(Timesheet.group == 1375, Timesheet.week == 1).order_by(Timesheet.day)
+async def get_current_day_1373(session: AsyncSession, week:int ,day: int):
+    query = select(Timesheet).where(Timesheet.group == 1373, Timesheet.week == week, Timesheet.day == day).order_by(Timesheet.time_start)
     result = await session.execute(query)
     timesheets = result.scalars().all()
 
@@ -34,8 +35,9 @@ async def get_noteven_timesheet_1375(session: AsyncSession):
 
     return timesheets
 
-async def get_even_timesheet_1376(session: AsyncSession):
-    query = select(Timesheet).where(Timesheet.group == 1376, Timesheet.week == 0).order_by(Timesheet.day)
+
+async def get_timesheet_1375(session: AsyncSession, week:int):
+    query = select(Timesheet).where(Timesheet.group == 1375, Timesheet.week == week).order_by(Timesheet.day)
     result = await session.execute(query)
     timesheets = result.scalars().all()
 
@@ -44,8 +46,31 @@ async def get_even_timesheet_1376(session: AsyncSession):
 
     return timesheets
 
-async def get_noteven_timesheet_1376(session: AsyncSession):
-    query = select(Timesheet).where(Timesheet.group == 1376, Timesheet.week == 1).order_by(Timesheet.day)
+
+async def get_current_day_1375(session: AsyncSession, week:int ,day: int):
+    query = select(Timesheet).where(Timesheet.group == 1375, Timesheet.week == week, Timesheet.day == day).order_by(Timesheet.time_start)
+    result = await session.execute(query)
+    timesheets = result.scalars().all()
+
+    for timesheet in timesheets:
+        timesheet.day = day_to_weekday.get(timesheet.day, "Неизвестный день")
+
+    return timesheets
+
+
+async def get_timesheet_1376(session: AsyncSession, week:int):
+    query = select(Timesheet).where(Timesheet.group == 1376, Timesheet.week == week).order_by(Timesheet.day, Timesheet.time_start)
+    result = await session.execute(query)
+    timesheets = result.scalars().all()
+
+    for timesheet in timesheets:
+        timesheet.day = day_to_weekday.get(timesheet.day, "Неизвестный день")
+
+    return timesheets
+
+
+async def get_current_day_1376(session: AsyncSession, week:int ,day: int):
+    query = select(Timesheet).where(Timesheet.group == 1376, Timesheet.week == week, Timesheet.day == day).order_by(Timesheet.time_start)
     result = await session.execute(query)
     timesheets = result.scalars().all()
 

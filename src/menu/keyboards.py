@@ -23,6 +23,8 @@ timesheet_menu = ReplyKeyboardMarkup(
         ],
         [
             KeyboardButton(text="1373"),
+        ],
+        [
             KeyboardButton(text="⬅️ Назад")
         ]
     ],
@@ -38,7 +40,12 @@ timesheet_1373_menu = ReplyKeyboardMarkup(
             KeyboardButton(text="Нечетная 1373")
         ],
         [
+            KeyboardButton(text="Текущая неделя 73"),
+            KeyboardButton(text="Текущий день 73"),
+        ],
+        [
             KeyboardButton(text="⬅️ Назад")
+
         ]
     ],
     resize_keyboard=True,
@@ -51,6 +58,10 @@ timesheet_1375_menu = ReplyKeyboardMarkup(
         [
             KeyboardButton(text="Четная 1375"),
             KeyboardButton(text="Нечетная 1375")
+        ],
+        [
+            KeyboardButton(text="Текущая неделя 75"),
+            KeyboardButton(text="Текущий день 75"),
         ],
         [
             KeyboardButton(text="⬅️ Назад")
@@ -66,6 +77,11 @@ timesheet_1376_menu = ReplyKeyboardMarkup(
         [
             KeyboardButton(text="Четная 1376"),
             KeyboardButton(text="Нечетная 1376")
+        ],
+        [
+            KeyboardButton(text="Текущая неделя 76"),
+            KeyboardButton(text="Текущий день 76"),
+
         ],
         [
             KeyboardButton(text="⬅️ Назад")

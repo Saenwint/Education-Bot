@@ -37,14 +37,15 @@ async def on_startup(bot):
 
 async def on_shutdown(bot):
     print('shutdown bot')
+    #await drop_db()
 
 
 @dp.message(F.text == "id")
 async def get_id(message: types.Message):
     await message.answer(f"Ваш id: {message.from_user.id}")
 
-
 async def main():
+
     dp.startup.register(on_startup)
     dp.shutdown.register(on_shutdown)
 

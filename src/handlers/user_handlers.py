@@ -1,7 +1,10 @@
+import asyncio
 from aiogram import F, md, Router
+import aioschedule
 from aiogram.types import Message
 from aiogram.filters import Command, CommandStart, CommandObject
 from aiogram import types
+import datetime as dt
 from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 from aiogram.enums import ParseMode
@@ -36,6 +39,7 @@ async def go_back(message: Message):
 async def show_timesheet(message: Message):
     await message.answer("Выберете группу", reply_markup=kb.timesheet_menu)
 
+
 @user_router.message(F.text == "1373")
 async def show_timesheet_1373(message: Message):
     await message.answer("Выберете неделю", reply_markup=kb.timesheet_1373_menu)
@@ -43,7 +47,7 @@ async def show_timesheet_1373(message: Message):
 
 @user_router.message(F.text == "Четная 1373")
 async def show_even_timesheet_1373(message: Message, session: AsyncSession):
-    timesheets = await tm_request.get_even_timesheet_1373(session)
+    timesheets = await tm_request.get_timesheet_1373(session, 2)
 
     if not timesheets:
         await message.answer("Расписание еще не добавлено 😔")
@@ -61,13 +65,12 @@ async def show_even_timesheet_1373(message: Message, session: AsyncSession):
         
         for day, schedule in weekly_schedule.items():
             #full = "<pre>" + "\n".join(schedule) +"</pre>"
-            await message.answer((f"<b>{day}</b>\n" + "\n".join(schedule)))
+            await message.answer((f"<b>{day}</b>\n\n" + "\n".join(schedule)))
         
-
 
 @user_router.message(F.text == "Нечетная 1373")
 async def show_noteven_timesheet_1373(message: Message, session: AsyncSession):
-    timesheets = await tm_request.get_noteven_timesheet_1373(session)
+    timesheets = await tm_request.get_timesheet_1373(session, 1)
     
     if not timesheets:
         await message.answer("Расписание еще не добавлено 😔")
@@ -85,7 +88,75 @@ async def show_noteven_timesheet_1373(message: Message, session: AsyncSession):
         
         for day, schedule in weekly_schedule.items():
             #full = "<pre>" + "\n".join(schedule) +"</pre>"
-            await message.answer((f"<b>{day}</b>\n" + "\n".join(schedule)))
+            await message.answer((f"<b>{day}</b>\n\n" + "\n".join(schedule)))
+
+
+@user_router.message(F.text == "Текущая неделя 73")
+async def show_current_timesheet_1373(message: Message, session: AsyncSession):
+    week_number = datetime.now().isocalendar()[1]
+    is_even = (week_number % 2) + 1
+    if week_number % 2 != 0:
+        timesheets = await tm_request.get_timesheet_1373(session, is_even)
+    
+        if not timesheets:
+            await message.answer("Расписание еще не добавлено 😔")
+        else:
+            weekly_schedule = {}
+
+            time_format = "%H:%M"
+
+            await message.answer("Расписание четной недели 1373")
+
+            for timesheet in timesheets:
+                if timesheet.day not in weekly_schedule:
+                    weekly_schedule[timesheet.day] = []
+                weekly_schedule[timesheet.day].append(f"<pre>Время: {timesheet.time_start.strftime(time_format)} - {timesheet.time_end.strftime(time_format)}\nПредмет: {timesheet.subject} Кабинет: {timesheet.cabinet}\nПреподаватель: {timesheet.teacher}</pre>")
+            
+            for day, schedule in weekly_schedule.items():
+                await message.answer((f"<b>{day}</b>\n\n" + "\n".join(schedule)))
+    else:
+        timesheets = await tm_request.get_timesheet_1373(session, is_even)
+    
+        if not timesheets:
+            await message.answer("Расписание еще не добавлено 😔")
+        else:
+            weekly_schedule = {}
+
+            time_format = "%H:%M"
+
+            await message.answer("Расписание нечетной недели 1373")
+
+            for timesheet in timesheets:
+                if timesheet.day not in weekly_schedule:
+                    weekly_schedule[timesheet.day] = []
+                weekly_schedule[timesheet.day].append(f"<pre>Время: {timesheet.time_start.strftime(time_format)} - {timesheet.time_end.strftime(time_format)}\nПредмет: {timesheet.subject} Кабинет: {timesheet.cabinet}\nПреподаватель: {timesheet.teacher}</pre>")
+            
+            for day, schedule in weekly_schedule.items():
+                #full = "<pre>" + "\n".join(schedule) +"</pre>"
+                await message.answer((f"<b>{day}</b>\n\n" + "\n".join(schedule)))
+
+
+@user_router.message(F.text == "Текущий день 73")
+async def show_current_day_1376(message: Message, session: AsyncSession):
+    week_number = datetime.now().isocalendar()[1]
+    day_number = dt.date.today().isoweekday()
+    is_even = (week_number % 2) + 1
+    timesheets = await tm_request.get_current_day_1373(session, is_even ,day_number)
+
+    if not timesheets:
+        await message.answer("Расписание еще не добавлено 😔")
+    else:
+        weekly_schedule = {}
+
+        time_format = "%H:%M"
+
+        for timesheet in timesheets:
+            if timesheet.day not in weekly_schedule:
+                weekly_schedule[timesheet.day] = []
+            weekly_schedule[timesheet.day].append(f"<pre>Время: {timesheet.time_start.strftime(time_format)} - {timesheet.time_end.strftime(time_format)}\nПредмет: {timesheet.subject} Кабинет: {timesheet.cabinet}\nПреподаватель: {timesheet.teacher}</pre>")
+        
+        for day, schedule in weekly_schedule.items():
+            await message.answer((f"<b>{day}</b>\n\n" + "\n".join(schedule)))
 
 
 @user_router.message(F.text == "1375")
@@ -95,7 +166,7 @@ async def show_timesheet_1375(message: Message):
 
 @user_router.message(F.text == "Четная 1375")
 async def show_even_timesheet_1375(message: Message, session: AsyncSession):
-    timesheets = await tm_request.get_even_timesheet_1375(session)
+    timesheets = await tm_request.get_timesheet_1375(session, 2)
 
     if not timesheets:
         await message.answer("Расписание еще не добавлено 😔")
@@ -113,13 +184,13 @@ async def show_even_timesheet_1375(message: Message, session: AsyncSession):
         
         for day, schedule in weekly_schedule.items():
             #full = "<pre>" + "\n".join(schedule) +"</pre>"
-            await message.answer((f"<b>{day}</b>\n" + "\n".join(schedule)))
+            await message.answer((f"<b>{day}</b>\n\n" + "\n".join(schedule)))
         
 
 
 @user_router.message(F.text == "Нечетная 1375")
 async def show_noteven_timesheet_1375(message: Message, session: AsyncSession):
-    timesheets = await tm_request.get_noteven_timesheet_1375(session)
+    timesheets = await tm_request.get_timesheet_1375(session, 1)
     
     if not timesheets:
         await message.answer("Расписание еще не добавлено 😔")
@@ -137,7 +208,73 @@ async def show_noteven_timesheet_1375(message: Message, session: AsyncSession):
         
         for day, schedule in weekly_schedule.items():
             #full = "<pre>" + "\n".join(schedule) +"</pre>"
-            await message.answer((f"<b>{day}</b>\n" + "\n".join(schedule)))
+            await message.answer((f"<b>{day}</b>\n\n" + "\n".join(schedule)))
+
+@user_router.message(F.text == "Текущая неделя 75")
+async def show_current_timesheet_1375(message: Message, session: AsyncSession):
+    week_number = datetime.now().isocalendar()[1]
+    is_even = (week_number % 2) + 1
+    if week_number % 2 != 0:
+        timesheets = await tm_request.get_timesheet_1375(session, is_even)
+    
+        if not timesheets:
+            await message.answer("Расписание еще не добавлено 😔")
+        else:
+            weekly_schedule = {}
+
+            time_format = "%H:%M"
+
+            await message.answer("Расписание четной недели 1375")
+
+            for timesheet in timesheets:
+                if timesheet.day not in weekly_schedule:
+                    weekly_schedule[timesheet.day] = []
+                weekly_schedule[timesheet.day].append(f"<pre>Время: {timesheet.time_start.strftime(time_format)} - {timesheet.time_end.strftime(time_format)}\nПредмет: {timesheet.subject} Кабинет: {timesheet.cabinet}\nПреподаватель: {timesheet.teacher}</pre>")
+            
+            for day, schedule in weekly_schedule.items():
+                await message.answer((f"<b>{day}</b>\n\n" + "\n".join(schedule)))
+    else:
+        timesheets = await tm_request.get_timesheet_1375(session, is_even)
+    
+        if not timesheets:
+            await message.answer("Расписание еще не добавлено 😔")
+        else:
+            weekly_schedule = {}
+
+            time_format = "%H:%M"
+
+            await message.answer("Расписание нечетной недели 1375")
+
+            for timesheet in timesheets:
+                if timesheet.day not in weekly_schedule:
+                    weekly_schedule[timesheet.day] = []
+                weekly_schedule[timesheet.day].append(f"<pre>Время: {timesheet.time_start.strftime(time_format)} - {timesheet.time_end.strftime(time_format)}\nПредмет: {timesheet.subject} Кабинет: {timesheet.cabinet}\nПреподаватель: {timesheet.teacher}</pre>")
+            
+            for day, schedule in weekly_schedule.items():
+                #full = "<pre>" + "\n".join(schedule) +"</pre>"
+                await message.answer((f"<b>{day}</b>\n\n" + "\n".join(schedule)))
+
+@user_router.message(F.text == "Текущий день 75")
+async def show_current_day_1375(message: Message, session: AsyncSession):
+    week_number = datetime.now().isocalendar()[1]
+    day_number = dt.date.today().isoweekday()
+    is_even = (week_number % 2) + 1
+    timesheets = await tm_request.get_current_day_1375(session, is_even ,day_number)
+
+    if not timesheets:
+        await message.answer("Расписание еще не добавлено 😔")
+    else:
+        weekly_schedule = {}
+
+        time_format = "%H:%M"
+
+        for timesheet in timesheets:
+            if timesheet.day not in weekly_schedule:
+                weekly_schedule[timesheet.day] = []
+            weekly_schedule[timesheet.day].append(f"<pre>Время: {timesheet.time_start.strftime(time_format)} - {timesheet.time_end.strftime(time_format)}\nПредмет: {timesheet.subject} Кабинет: {timesheet.cabinet}\nПреподаватель: {timesheet.teacher}</pre>")
+        
+        for day, schedule in weekly_schedule.items():
+            await message.answer((f"<b>{day}</b>\n\n" + "\n".join(schedule)))
 
 
 @user_router.message(F.text == "1376")
@@ -147,7 +284,7 @@ async def show_timesheet_1376(message: Message):
 
 @user_router.message(F.text == "Четная 1376")
 async def show_even_timesheet_1376(message: Message, session: AsyncSession):
-    timesheets = await tm_request.get_even_timesheet_1376(session)
+    timesheets = await tm_request.get_timesheet_1376(session, 2)
 
     if not timesheets:
         await message.answer("Расписание еще не добавлено 😔")
@@ -165,12 +302,12 @@ async def show_even_timesheet_1376(message: Message, session: AsyncSession):
         
         for day, schedule in weekly_schedule.items():
             #full = "<pre>" + "\n".join(schedule) +"</pre>"
-            await message.answer((f"<b>{day}</b>\n" + "\n".join(schedule)))
+            await message.answer((f"<b>{day}</b>\n\n" + "\n".join(schedule)))
 
 
 @user_router.message(F.text == "Нечетная 1376")
 async def show_noteven_timesheet_1376(message: Message, session: AsyncSession):
-    timesheets = await tm_request.get_noteven_timesheet_1376(session)
+    timesheets = await tm_request.get_timesheet_1376(session, 1)
 
     if not timesheets:
         await message.answer("Расписание еще не добавлено 😔")
@@ -188,7 +325,73 @@ async def show_noteven_timesheet_1376(message: Message, session: AsyncSession):
         
         for day, schedule in weekly_schedule.items():
             #full = "<pre>" + "\n".join(schedule) +"</pre>"
-            await message.answer((f"<b>{day}</b>\n" + "\n".join(schedule)))
+            await message.answer((f"<b>{day}</b>\n\n" + "\n".join(schedule)))
+
+@user_router.message(F.text == "Текущая неделя 76")
+async def show_current_timesheet_1376(message: Message, session: AsyncSession):
+    week_number = datetime.now().isocalendar()[1]
+    is_even = (week_number % 2) + 1
+    if week_number % 2 != 0:
+        timesheets = await tm_request.get_timesheet_1376(session, is_even)
+    
+        if not timesheets:
+            await message.answer("Расписание еще не добавлено 😔")
+        else:
+            weekly_schedule = {}
+
+            time_format = "%H:%M"
+
+            await message.answer("Расписание четной недели 1376")
+
+            for timesheet in timesheets:
+                if timesheet.day not in weekly_schedule:
+                    weekly_schedule[timesheet.day] = []
+                weekly_schedule[timesheet.day].append(f"<pre>Время: {timesheet.time_start.strftime(time_format)} - {timesheet.time_end.strftime(time_format)}\nПредмет: {timesheet.subject} Кабинет: {timesheet.cabinet}\nПреподаватель: {timesheet.teacher}</pre>")
+            
+            for day, schedule in weekly_schedule.items():
+                await message.answer((f"<b>{day}</b>\n\n" + "\n".join(schedule)))
+    else:
+        timesheets = await tm_request.get_timesheet_1376(session, is_even)
+    
+        if not timesheets:
+            await message.answer("Расписание еще не добавлено 😔")
+        else:
+            weekly_schedule = {}
+
+            time_format = "%H:%M"
+
+            await message.answer("Расписание нечетной недели 1376")
+
+            for timesheet in timesheets:
+                if timesheet.day not in weekly_schedule:
+                    weekly_schedule[timesheet.day] = []
+                weekly_schedule[timesheet.day].append(f"<pre>Время: {timesheet.time_start.strftime(time_format)} - {timesheet.time_end.strftime(time_format)}\nПредмет: {timesheet.subject} Кабинет: {timesheet.cabinet}\nПреподаватель: {timesheet.teacher}</pre>")
+            
+            for day, schedule in weekly_schedule.items():
+                #full = "<pre>" + "\n".join(schedule) +"</pre>"
+                await message.answer((f"<b>{day}</b>\n\n" + "\n".join(schedule)))
+
+@user_router.message(F.text == "Текущий день 76")
+async def show_current_day_1376(message: Message, session: AsyncSession):
+    week_number = datetime.now().isocalendar()[1]
+    day_number = dt.date.today().isoweekday()
+    is_even = (week_number % 2) + 1
+    timesheets = await tm_request.get_current_day_1376(session, is_even ,day_number)
+
+    if not timesheets:
+        await message.answer("Расписание еще не добавлено 😔")
+    else:
+        weekly_schedule = {}
+
+        time_format = "%H:%M"
+
+        for timesheet in timesheets:
+            if timesheet.day not in weekly_schedule:
+                weekly_schedule[timesheet.day] = []
+            weekly_schedule[timesheet.day].append(f"<pre>Время: {timesheet.time_start.strftime(time_format)} - {timesheet.time_end.strftime(time_format)}\nПредмет: {timesheet.subject} Кабинет: {timesheet.cabinet}\nПреподаватель: {timesheet.teacher}</pre>")
+        
+        for day, schedule in weekly_schedule.items():
+            await message.answer((f"<b>{day}</b>\n\n" + "\n".join(schedule)))
 
 # ==================Notes==================
 
@@ -231,5 +434,7 @@ async def show_python_materials(message: Message, session: AsyncSession):
         for material in materials:
             response += f"<a href='{material.link}'>{material.description}</a>\n"
         await message.answer(response)
+
+
 
 
